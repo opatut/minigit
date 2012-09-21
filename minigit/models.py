@@ -19,8 +19,8 @@ class Email(db.Model):
         self.user = user
 
 class PublicKey(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    key = db.Column(db.String(1024), unique=True)
+    id = db.Column(db.Integer, primary_key = True)
+    key = db.Column(db.String(1024), unique = True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     def __init__(self, key, user):
@@ -28,20 +28,19 @@ class PublicKey(db.Model):
         self.user = user
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
+    id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.String(80), unique = True)
     password = db.Column(db.String(128))
 
     emails = db.relationship("Email", backref = "team", lazy = "dynamic")
     keys = db.relationship("PublicKey", backref = "user", lazy = "dynamic")
 
-    is_admin = db.Column(db.Boolean, default=False)
+    is_admin = db.Column(db.Boolean, default = False)
     permissions = db.relationship("Permission", backref = "user", lazy = "dynamic")
 
-    def __init__(self, username, password, is_admin = False):
+    def __init__(self, username, password):
         self.username = username
         self.password = hash_password(password)
-        self.is_admin = is_admin
 
     def addEmail(self, email, default = False, gravatar = False):
         e = Email(email, self)
