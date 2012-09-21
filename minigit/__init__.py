@@ -6,7 +6,7 @@ from flask.ext.markdown import Markdown
 
 app = Flask(__name__)
 # mail = Mail(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///minigit.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../minigit.db'
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['SECRET_KEY'] = 'CHANGE_ME'
 app.config.from_pyfile('../minigit.cfg', silent=True)

@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 from minigit import db
 from minigit.models import User
 

@@ -54,17 +54,13 @@ class User(db.Model):
         e = Email(email, self)
         db.session.add(e)
         self.emails.append(e)
+        db.session.commit()
 
-        if default:
-            self.default_email.is_default = False
-        e.is_default = default
-
-        if gravatar:
-            self.default_email.is_default = False
-        e.is_default = default
+        if default: self.setDefaultEmail(e.id)
+        if gravatar: self.setGravatarEmail(e.id)
 
     def addPublicKey(self, key):
-        k = PublicKey(k, self)
+        k = PublicKey(key, self)
         db.session.add(k)
         self.keys.append(k)
 
