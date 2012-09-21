@@ -18,8 +18,6 @@ app.config.from_pyfile('../config.py', silent = False)
 if not isabs(app.config["REPOHOME"]):
     app.config["REPOHOME"] = abspath(join(app.config["ROOTDIR"], app.config["REPOHOME"]))
 
-print "Repository Directory: " + app.config["REPOHOME"]
-
 db = SQLAlchemy(app)
 
 Markdown(app, safe_mode="escape")

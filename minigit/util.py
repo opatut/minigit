@@ -1,4 +1,4 @@
-import re
+import re, os, sys, datetime
 from hashlib import sha512
 from minigit import app
 
@@ -26,7 +26,7 @@ def write(l):
 
 def die(message):
     write(message)
-    logAccess("DENIED - " + message)
+    log_access("DENIED - " + message)
     sys.exit(1)
 
 def log_access(message):

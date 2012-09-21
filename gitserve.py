@@ -7,7 +7,7 @@ activate_this = join(dirname(abspath(__file__)), "env", "bin", "activate_this.py
 execfile(activate_this, dict(__file__ = activate_this))
 
 from minigit import app
-from minigit.utils import *
+from minigit.util import *
 from minigit.models import User, PublicKey, Repository, Permission
 
 # Read the command line argument (key ID) and the original ssh command.
@@ -51,6 +51,13 @@ if not repository:
     die("Unable to find repository '" + repo + "'. Create or import it first.")
 
 # TODO: Check the permissions for this user.
+
+if writeMode and not repository.userHasPermission(user, "write"):
+    die("Permission denied - no write access.")
+
+if not writeMode and not repository.userHasPermission(user, "read"):
+    die("Permission denied - no read access.")
+
 
 log_access(("WRITE" if writeMode else "READ") + " - <" + user.username + "> in <" + repo + ">")
 

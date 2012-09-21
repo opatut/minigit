@@ -47,29 +47,28 @@ class User(db.Model):
         e = Email(email, self)
         db.session.add(e)
         self.emails.append(e)
-        db.session.commit()
 
-        if default: self.setDefaultEmail(e.id)
-        if gravatar: self.setGravatarEmail(e.id)
+        if default: self.setDefaultEmail(e)
+        if gravatar: self.setGravatarEmail(e)
 
     def addPublicKey(self, key):
         k = PublicKey(key, self)
         db.session.add(k)
         self.keys.append(k)
 
-    def setDefaultEmail(self, id):
+    def setDefaultEmail(self, email):
         if self.default_email:
-            if self.default_email.id == id:
+            if self.default_email == email:
                 return
             self.default_email.is_default = False
-        Email.query.filter_by(id = id).first().is_default = True
+        email.is_default = True
 
-    def setGravatarEmail(self, id):
+    def setGravatarEmail(self, email):
         if self.gravatar_email:
-            if self.gravatar_email.id == id:
+            if self.gravatar_email == email:
                 return
             self.gravatar_email.is_default = False
-        Email.query.filter_by(id = id).first().is_gravatar = True
+        email.is_gravatar = True
 
     @property
     def default_email(self):
@@ -101,8 +100,8 @@ class User(db.Model):
 class Permission(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    repository = db.Column(db.Integer, db.ForeignKey("repository.id"))
-    access = db.Column(db.Enum("none", "read", "write", "admin"), default = "none")
+    repository_id = db.Column(db.Integer, db.ForeignKey("repository.id"))
+    access = db.Column(db.Enum("read", "write", "admin"), default = "read")
 
     def __init__(self, user, repository, access):
         self.user = user
@@ -144,5 +143,47 @@ class Repository(db.Model):
         self.upstream = url + " " + branch
         run("mkdir -p {0} && cd {0} && git clone {2} {1}.git b {3} --bare".format(app.config["REPOHOME"], self.slug. url, branch))
 
+    def setUserPermission(self, user, permission):
+        """ `permissions` can be either of: none, read, write, admin """
+        p = self.getUserPermission(user)
+        if p == permission: return
+
+        if p == "none":
+            # we have no permission object, create it
+            perm = Permission(user, self, permission)
+            db.session.add(perm)
+        else:
+            # we have a permission object and don't want it
+            perm = Permission.query.filter_by(user_id = user.id, repository_id = self.id).first()
+            if permission == "none":
+                db.session.delete(perm)
+            else:
+                perm.access = permission
+
+    def getUserPermission(self, user):
+        p = Permission.query.filter_by(user_id = user.id, repository_id = self.id).first()
+        if not p:
+            return "none"
+        else:
+            return p.access
+
+    """ Users with is_admin flag do not require explicit read/write access """
+    def userHasPermission(self, user, permission):
+        p = self.getUserPermission(user)
+        print("User permission level: " + p + " / " + permission)
+
+        if permission == "admin":
+            return p == "admin" or user.is_admin
+
+        if permission == "write":
+            return p in ("write", "admin")  or user.is_admin
+
+        if permission == "read":
+            return p in ("read", "write", "admin") or user.is_admin
+
+        if permission == "none":
+            return p == "none"
+
+        return False
 
 # EOF
