@@ -117,6 +117,9 @@ class Repository(db.Model):
     slug = db.Column(db.String(128), unique = True)
     title = db.Column(db.String(128))
     upstream = db.Column(db.String(256)) # URL BRANCH
+    is_public = db.Column(db.Boolean, default = True)
+
+    permissions = db.relationship("Permission", backref = "repository", lazy = "dynamic")
 
     def __init__(self, title, slug = ""):
         self.slug = get_slug(title) if not slug else slug
@@ -170,6 +173,7 @@ class Repository(db.Model):
     """ Users with is_admin flag do not require explicit read/write access """
     def userHasPermission(self, user, permission):
         p = self.getUserPermission(user)
+        log_access(p)
 
         if permission == "admin":
             return p == "admin" or user.is_admin
@@ -178,10 +182,10 @@ class Repository(db.Model):
             return p in ("write", "admin")  or user.is_admin
 
         if permission == "read":
-            return p in ("read", "write", "admin") or user.is_admin
+            return p in ("read", "write", "admin") or user.is_admin or self.is_public
 
         if permission == "none":
-            return p == "none"
+            return not self.is_public and p == "none"
 
         return False
 

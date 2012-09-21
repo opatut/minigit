@@ -38,7 +38,7 @@ if len(split) >= 2:
 if not action or action not in ("git-receive-pack", "git-upload-pack"):
     die("Invalid SSH command. Only use this user with git.")
 
-writeMode = (action == "git-upload-pack")
+writeMode = (action == "git-receive-pack")
 
 # Find the key in the database.
 key = PublicKey.query.filter_by(id = key_id).first()

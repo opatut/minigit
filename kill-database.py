@@ -21,6 +21,8 @@ test = Repository("Test Repository", "test")
 db.session.add(test)
 test.init()
 
+db.session.commit()
+
 test.setUserPermission(opatut, "read")
 test.setUserPermission(zetaron, "read")
 
