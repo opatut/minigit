@@ -1,5 +1,7 @@
-env/
-*.pyc
 *.cfg
 *.db
 *.log
+*.pyc
+config.py
+env/
+repositories/

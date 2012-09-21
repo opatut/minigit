@@ -1,31 +1,13 @@
 #!/usr/bin/env python2
 import sys, os, datetime
-
-def write(l):
-    sys.stderr.write(l + "\n")
-
-def die(message):
-    write(message)
-    logAccess("DENIED - " + message)
-    sys.exit(1)
-
-def logAccess(message):
-    with open("access.log", "a") as f:
-        m = str(datetime.datetime.utcnow())
-        m += " - "
-        m += os.getenv("SSH_CLIENT").split()[0]
-        m += " - "
-        m += message + "\n"
-        f.write(m)
-
-def shellquote(s):
-    return "'" + s.replace("'", "'\\''") + "'"
+from os.path import *
 
 # Activate the virtual environment to load the library.
-current_dir = os.path.dirname(os.path.abspath(__file__))
-activate_this = os.path.join(current_dir, "env", "bin", "activate_this.py")
+activate_this = join(dirname(abspath(__file__)), "env", "bin", "activate_this.py")
 execfile(activate_this, dict(__file__ = activate_this))
 
+from minigit import app
+from minigit.utils import *
 from minigit.models import User, PublicKey, Repository, Permission
 
 # Read the command line argument (key ID) and the original ssh command.
@@ -70,11 +52,10 @@ if not repository:
 
 # TODO: Check the permissions for this user.
 
-logAccess(("WRITE" if writeMode else "READ") + " - <" + user.username + "> in <" + repo + ">")
+log_access(("WRITE" if writeMode else "READ") + " - <" + user.username + "> in <" + repo + ">")
 
 # inform user about authorization
 write("User " + user.username + " authorized for " + ("write" if writeMode else "read") + " access")
 
 # user made a valid request so handing over to git-shell
-os.system("git shell -c " + shellquote(command))
-
+os.system("cd {0} && git shell -c {1}".format(app.config["REPOHOME"], shellquote(command)))

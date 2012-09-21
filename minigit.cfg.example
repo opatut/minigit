@@ -1,3 +1,0 @@
-gituser = "git"
-home = "/srv/git"
-authorized_keys = home + "/.ssh/authorized_keys"

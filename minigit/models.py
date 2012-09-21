@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import os
 from datetime import datetime, timedelta
 from hashlib import sha512, md5
 from minigit import app, db
+from minigit.util import *
 from flask import url_for, Markup
-
-def get_slug(s):
-    s = s.lower()
-    s = re.sub(r"[\s_+]+", "-", s)
-    s = re.sub("[^a-z0-9\-]", "", s)
-    return s
-
-def hash_password(s):
-    return sha512((s + app.config['SECRET_KEY']).encode('utf-8')).hexdigest()
 
 class Email(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -116,10 +109,15 @@ class Permission(db.Model):
         self.repository = repository
         self.access = access
 
+def run(p):
+    print("$ " + p)
+    return os.system(p)
+
 class Repository(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    slug = db.Column(db.String(128))
+    slug = db.Column(db.String(128), unique = True)
     title = db.Column(db.String(128))
+    upstream = db.Column(db.String(256)) # URL BRANCH
 
     def __init__(self, title, slug = ""):
         self.slug = get_slug(title) if not slug else slug
@@ -127,10 +125,24 @@ class Repository(db.Model):
 
     @property
     def path(self):
-        return os.path.join(APP_CONFIG["home"], self.slug + ".git")
+        return os.path.join(app.config["REPOHOME"], self.slug + ".git")
 
+    @property
+    def gitUrl(self):
+        return "{0}@{1}:{2}.git".format(app.config["GIT_USER"], app.config["DOMAIN"], self.slug)
+
+    @property
     def exists(self):
         return os.path.isdir(self.path)
 
-    def create(self):
-        pass
+    def init(self):
+        if self.exists: return
+        run("mkdir -p {0} && cd {0} &&  mkdir {1}.git && cd {1}.git && git init --bare".format(app.config["REPOHOME"], self.slug))
+
+    def clone(self, url, branch = "HEAD"):
+        if self.exists: return
+        self.upstream = url + " " + branch
+        run("mkdir -p {0} && cd {0} && git clone {2} {1}.git b {3} --bare".format(app.config["REPOHOME"], self.slug. url, branch))
+
+
+# EOF

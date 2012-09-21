@@ -1,0 +1,4 @@
+GIT_USER = "git"
+DOMAIN = "localhost"
+HOME = "/srv/git"
+AUTHORIZED_KEYS = HOME + "/.ssh/authorized_keys"
