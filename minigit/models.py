@@ -170,7 +170,6 @@ class Repository(db.Model):
     """ Users with is_admin flag do not require explicit read/write access """
     def userHasPermission(self, user, permission):
         p = self.getUserPermission(user)
-        print("User permission level: " + p + " / " + permission)
 
         if permission == "admin":
             return p == "admin" or user.is_admin
