@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %} - Minigit</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" type="text/css" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css" />
+
+        <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+        <link rel="icon" href="{{ url_for('static', filename='gfx/favicon.ico') }}" type="image/x-icon">
+        <link rel="icon" href="{{ url_for('static', filename='gfx/favicon.png') }}" type="image/png">
+
+        {% block head %}{% endblock %}
+    </head>
+
+    <body>
+        <div class="navbar navbar-inverse navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="#">Minigit</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li class="active"><a href="#">Home</a></li>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </div><!--/.nav-collapse -->
+
+                    <form class="navbar-form pull-right">
+                        <input type="text" class="span3" value="rofl">
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="span3">
+                    <div class="well sidebar-nav">
+                        <ul class="nav nav-list">
+                            <li class="nav-header">General</li>
+                            <li>
+                                <a href="#">
+                                    <i class="icon-play-circle"></i>
+                                    Activity
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="icon-list"></i>
+                                    Repository List
+                                </a>
+                            </li>
+
+                            <li class="nav-header">Testrepo</li>
+                            <li>
+                                <a href="#">
+                                    <i class="icon-file"></i>
+                                    Source Browser
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="icon-time"></i>
+                                    Commit history
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="icon-user"></i>
+                                    Permission Management
+                                </a>
+                            </li>
+
+                            <li class="nav-header">User</li>
+
+                            <li>
+                                <a href="#">
+                                    <i class="icon-wrench"></i>
+                                    Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="icon-lock"></i>
+                                    SSH Keys
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <i class="icon-envelope"></i>
+                                    Email addresses
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="span9">
+                    <div class="content">
+                        <ul id="flashes">
+                            {% for category, message in get_flashed_messages(with_categories = True) %}
+                                <li class="{{ category if category and category != 'message' else 'info' }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div> <!-- /container -->
+    </body>
+</html>
