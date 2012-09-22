@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}/{{ repo.slug }} - {{ repo.title }}{% endblock %}
+{% block title %}{% if path %}{{ path }} &middot; {% endif %}/{{ repo.slug }} &middot; {{ repo.title }}{% endblock %}
 
 {% block head %}
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/browse.css') }}" />
@@ -9,16 +9,23 @@
 
 {% block content %}
 <div class="page-header">
-    <h3>{{ repo.title }} - File Browser</h3>
+    <h3>File Browser <small>{{ repo.title }}</small></h3>
 </div>
 
 
+{% set branches = repo.git.branches %}
+{% set isbranch = repo.git.isBranch(ref) %}
+
 <div class="pull-right">
     <span class="input-prepend branch-select ">
-        <span class="add-on">branch</span><select class="input-small" id="branch-select">
+        <span class="add-on">{% if isbranch %}branch{% else %}commit{% endif %}</span><select class="input-small" id="branch-select">
             {% for branch in repo.git.branches %}
-            <option value="{{ url_for('browse', slug = repo.slug, ref = branch, path = path) }}" {% if repo.git.refHash(branch) == repo.git.refHash(ref) %}selected="SELECTED"{% endif %}>{{ branch }}</option>
+                <option value="{{ url_for('browse', slug = repo.slug, ref = branch, path = path) }}" {% if repo.git.refHash(branch) == repo.git.refHash(ref) %}selected="SELECTED"{% endif %}>{{ branch }}</option>
             {% endfor %}
+
+            {% if not isbranch %}
+                <option value="{{ url_for('browse', slug = repo.slug, ref = ref, path = path) }}" selected="SELECTED">{{ ref[:10] }}</option>
+            {% endif %}
         </select>
     </span>
     &nbsp;
@@ -56,15 +63,20 @@
     </thead>
     <tbody>
 {% for file in tree.children %}
+    {% set last = repo.git.lastChangedCommit(ref, file.path) %}
+
     <tr class="{% if file.is_tree %}folder{% else %}file{% endif %}">
         <td><i class="icon-16 icon-file-{{ file.type or 'unknown' }}"></i></td>
         <td><a href="{{ url_for('browse', slug = repo.slug, ref = ref, path = file.path) }}">{{ file.name }}</a></td>
-        <td>LAST CHANGED</td>
-        <td>Message</td>
+        <td>{{ last.author_time | humantime }}</td>
+        <td>
+            {{ last.message[:70] }}{% if last.message | length > 70 %}...{% endif %}
+            - <a href="{{ url_for('commits_details', slug = repo.slug, ref = last.ref) }}">{{ last.ref[:6] }}</a>
+            - <a href="#TODO">{{ last.author.username }}</a>
+        </td>
     </tr>
 {% endfor %}
     </tbody>
 </table>
 
 {% endblock %}
-

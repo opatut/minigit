@@ -11,9 +11,30 @@ from minigit.models import *
 def index():
     return render_template("index.html")
 
+@app.route("/list/")
+def repositories():
+    return render_template("repositories.html", list = Repository.query.all())
+
 @app.route("/<slug>/")
 def repository(slug):
     return redirect(url_for("browse", slug = slug, ref = "HEAD", path = ""))
+
+@app.route("/not-implemented/")
+def not_implemented():
+    flash("This feature is not yet implemented.", category = "error")
+    return redirect(url_for("index"))
+
+
+@app.route("/<slug>/commits/")
+@app.route("/<slug>/commits/<ref>/")
+def commits(slug, ref = "HEAD"):
+    repo = get_repo(slug)
+    return render_template("repo/commits.html", repo = repo, commits = repo.git.getCommits(ref))
+
+@app.route("/<slug>/commit/<ref>/")
+def commits_details(slug, ref):
+    repo = get_repo(slug)
+    return render_template("repo/commit.html", repo = repo, commit = repo.git.getCommit(ref))
 
 @app.route("/<slug>/browse/<ref>/")
 @app.route("/<slug>/browse/<ref>/<path:path>")

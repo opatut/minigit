@@ -1,0 +1,31 @@
+{% macro menuCategory(label) %}
+    <li class="nav-header">{{ label }}</li>
+{% endmacro %}
+
+{% macro menuEntry(label, icon, endpoint, kwargs = {}) %}
+    <li{% if request.endpoint.startswith(endpoint) %} class="active"{% endif %}>
+        <a href="{{ url_for(endpoint, **kwargs) }}">
+            <i class="icon-{{ icon }}"></i>
+            {{ label }}
+        </a>
+    </li>
+{% endmacro %}
+
+<ul class="nav nav-list">
+
+{% if repo %}
+    {{ menuCategory(repo.title) }}
+    {{ menuEntry("Source Browser", "file", "browse", {"slug" : repo.slug, "ref" : "HEAD", "path" : ""}) }}
+    {{ menuEntry("Commit history", "time", "commits", {"slug" : repo.slug} ) }}
+    {{ menuEntry("Permissions", "user", "not_implemented") }}
+{% endif %}
+
+    {{ menuCategory("General") }}
+    {{ menuEntry("Activity", "play-circle", "index") }}
+    {{ menuEntry("Repository list", "list", "repositories") }}
+
+    {{ menuCategory("User") }}
+    {{ menuEntry("Profile", "wrench", "not_implemented") }}
+    {{ menuEntry("SSH Keys", "lock", "not_implemented") }}
+    {{ menuEntry("Email addresses", "envelope", "not_implemented") }}
+</ul>

@@ -1,0 +1,49 @@
+.commits {
+    margin: 0;
+    list-style: none;
+}
+
+.commits li.commit {
+    display: block;
+    background: #F7F7F7;
+    border: 1px solid #DDD;
+    padding: 6px;
+    border-radius: 6px;
+    position: relative;
+    margin-bottom: 6px;
+    height: 40px;
+}
+
+.commits li.commit .meta,
+.commits li.commit .message {
+    margin: 0 100px 0 46px;
+}
+
+.commits li.commit .meta {
+    font-size: 0.9em;
+    color: #AAA;
+}
+
+.commits li.commit .message {
+    font-size: 1.25em;
+    font-weight: bold;
+}
+
+.commits li.commit .buttons {
+    position: absolute;
+    right: 12px;
+    top: 6px;
+    height: 40px;
+    line-height: 40px;
+}
+
+.commits li.commit img {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+}
+
+.commits li.date {
+    font-size: 1.8em;
+    margin: 20px 0 10px 0;
+}

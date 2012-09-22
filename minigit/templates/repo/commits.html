@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}/{{ repo.slug }} &middot; {{ repo.title }}{% endblock %}
+
+{% block head %}
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/commits.css') }}" />
+    <script src="{{ url_for('static', filename='js/commits.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3>Commit history <small>{{ repo.title }}</small></h3>
+</div>
+
+<ul class="commits">
+    {% set day = None %}
+    {% for commit in commits %}
+        {% if day != commit.author_time.date() %}
+            {% set day = commit.author_time.date() %}
+            <li class="date">{{ day | nicedate }}</li>
+        {% endif %}
+    <li class="commit">
+        <img src="{{ commit.author.getAvatar(40) }}">
+        <div class="message">
+            {{ commit.message[:70] }}{% if commit.message | length > 70 %}...{% endif %}
+        </div>
+        <div class="meta">
+            <a href="#TODO">{{ commit.author.username }}</a> authored {{ commit.author_time | humantime }}
+            <span class="hash">{{ commit.ref[:10] }}</span>
+        </div>
+        <div class="buttons">
+            <a href="{{ url_for('commits_details', slug = repo.slug, ref = commit.ref) }}" class="btn btn-mini">Details</a>
+            <a href="{{ url_for('browse', slug = repo.slug, ref = commit.ref, path = '') }}" class="btn btn-mini">Browse</a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

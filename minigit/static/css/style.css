@@ -3,14 +3,41 @@
     margin: 20px 0;
 }
 
+#wrapper {
+    min-height: 100%;
+    position: relative;
+}
+
+html, body {
+    height: 100%;
+}
+
+#body {
+    min-height: 100%;
+    padding-bottom: 100px;
+}
+
+#footer {
+    height: 30px;
+    background: #F7F7F7;
+    border-top: 1px solid #DDD;
+    margin-top: 20px;
+    padding: 20px 0 10px 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
 .hash {
     font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
     font-weight: bold;
-    margin: 0 10px;
+    margin: 0 5px;
 }
 
-.hash:before { content: "["; }
-.hash:after { content: "]"; }
+.flashes .alert:first-child {
+    margin-top: 20px;
+}
 
 /*body {
     background-color: #EEE;

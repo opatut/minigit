@@ -2,7 +2,7 @@
 
 {% set raw_url = url_for('file_content', slug = repo.slug, ref = ref, path = file.path) %}
 
-{% block title %}/{{ repo.slug }} - {{ repo.title }}{% endblock %}
+{% block title %}{% if path %}{{ path }} &middot; {% endif %}/{{ repo.slug }} &middot; {{ repo.title }}{% endblock %}
 
 {% block head %}
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/file.css') }}" />
@@ -33,15 +33,15 @@
 {% elif file.type == "image" %}
     <div class="well image-preview white">
         <p>
-            <a href="#" class="btn btn-mini active">
+            <button class="btn btn-mini active">
                 <span class="mode white" data-mode="white"></span>
-            </a>
-            <a href="#" class="btn btn-mini">
+            </button>
+            <button class="btn btn-mini">
                 <span class="mode black" data-mode="black"></span>
-            </a>
-            <a href="#" class="btn btn-mini">
+            </button>
+            <button class="btn btn-mini">
                 <span class="mode transparent" data-mode="transparent"></span>
-            </a>
+            </button>
         </p>
 
         <a href="{{ raw_url }}">

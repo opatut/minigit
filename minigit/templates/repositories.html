@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Repositories{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3>Repository List</h3>
+</div>
+
+{% for repo in list %}
+    <h4>
+        <a href="{{ url_for('browse', slug = repo.slug, ref = 'HEAD', path = '') }}">{{ repo.title }}</a>
+        <small>/{{ repo.slug }}</small>
+    </h4>
+{% endfor %}
+
+{% endblock %}
+

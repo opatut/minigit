@@ -1,4 +1,4 @@
-import re, os, sys, datetime, subprocess
+import re, os, sys, datetime, subprocess, iso8601, pytz
 from hashlib import sha512
 from minigit import app
 from os.path import *
@@ -33,6 +33,12 @@ def extract_email(git_user):
     if a:
         return a.group(1)
     return ""
+
+def parse_date(s):
+    # Parse timezone offset
+    stamp, tz = s.split()
+    timezone = iso8601.iso8601.parse_timezone(tz[:3] + ':' + tz[3:])
+    return datetime.datetime.fromtimestamp(int(stamp), timezone).astimezone(pytz.utc).replace(tzinfo = None)
 
 def hash_password(s):
     return sha512((s + app.config['SECRET_KEY']).encode('utf-8')).hexdigest()

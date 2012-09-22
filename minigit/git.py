@@ -191,8 +191,10 @@ class GitCommit(object):
                         self.parent_refs.append(split[1])
                     if split[0] == "author":
                         self.author_raw = split[1]
+                        self.author_time = parse_date(self.author_raw[-16:])
                     if split[0] == "committer":
                         self.committer_raw = split[1]
+                        self.commit_time = parse_date(self.committer_raw[-16:])
 
             else:
                 self.message += line.strip() + "\n"
@@ -208,6 +210,35 @@ class Git(object):
 
     def getCommit(self, ref):
         return GitCommit(ref, self)
+
+    def getCommits(self, ref = "HEAD"):
+        raw = run("cd %s && git log %s --oneline --no-abbrev-commit" % (self.path, ref))
+        commits = []
+        for line in raw.splitlines():
+            commits.append(self.getCommit(line[:40]))
+        return commits
+
+    def isBranch(self, ref):
+        ref = self.refHash(ref)
+        for b in self.branches:
+            if self.refHash(b) == ref:
+                return True
+        return False
+
+    def getNodeHistory(self, path):
+        raw = run("cd %s && git log --oneline --no-abbrev-commit -- %s" % (self.path, path))
+        commits = []
+        for line in raw.splitlines():
+            commits.append(self.getCommit(line[:40]))
+        return commits
+
+    def lastChangedCommit(self, ref, path):
+        h = self.getNodeHistory(path)
+        c = self.getCommit(ref)
+        while len(h) > 1 and h[0].author_time > c.author_time:
+            h = h[1:]
+
+        return h[0]
 
     @property
     def branches(self):

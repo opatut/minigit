@@ -2,9 +2,9 @@ $(document).ready(function() {
     $(".image-preview .mode").click(function() {
         var pv = $(this).parent().parent();
 
-        pv.find("a").removeClass("active");
+        pv.find("button").removeClass("active");
 
-        $(this).parent("a").addClass("active");
+        $(this).parent("button").addClass("active");
 
         pv.parent()
             .removeClass("transparent")
