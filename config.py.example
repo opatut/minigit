@@ -1,4 +1,4 @@
 GIT_USER = "git"
 DOMAIN = "localhost"
 REPOHOME = "repositories/"
-AUTHORIZED_KEYS = "~/.ssh/authorized_keys"
+AUTHORIZED_KEYS = "/home/git/.ssh/authorized_keys"

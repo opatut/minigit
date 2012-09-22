@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
+from os.path import *
 from datetime import datetime, timedelta
 from hashlib import sha512, md5
 from minigit import app, db
 from minigit.util import *
 from flask import url_for, Markup
+from minigit.git import *
 
 class Email(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -32,7 +34,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique = True)
     password = db.Column(db.String(128))
 
-    emails = db.relationship("Email", backref = "team", lazy = "dynamic")
+    emails = db.relationship("Email", backref = "user", lazy = "dynamic")
     keys = db.relationship("PublicKey", backref = "user", lazy = "dynamic")
 
     is_admin = db.Column(db.Boolean, default = False)
@@ -94,7 +96,7 @@ class User(db.Model):
         email = self.gravatar_email
         if not email: email = self.default_email
 
-        return "http://www.gravatar.com/avatar/{0}?s={1}&d=identicon".format(md5(email.lower()).hexdigest(), size)
+        return "http://www.gravatar.com/avatar/{0}?s={1}&d=identicon".format(md5(email.address.lower()).hexdigest(), size)
 
 class Permission(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -107,10 +109,6 @@ class Permission(db.Model):
         self.repository = repository
         self.access = access
 
-def run(p):
-    print("$ " + p)
-    return os.system(p)
-
 class Repository(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     slug = db.Column(db.String(128), unique = True)
@@ -120,13 +118,15 @@ class Repository(db.Model):
 
     permissions = db.relationship("Permission", backref = "repository", lazy = "dynamic")
 
+    _git = None
+
     def __init__(self, title, slug = ""):
         self.slug = get_slug(title) if not slug else slug
         self.title = title
 
     @property
     def path(self):
-        return os.path.join(app.config["REPOHOME"], self.slug + ".git")
+        return abspath(join(app.config["REPOHOME"], self.slug + ".git"))
 
     @property
     def gitUrl(self):
@@ -134,13 +134,13 @@ class Repository(db.Model):
 
     @property
     def exists(self):
-        return os.path.isdir(self.path)
+        return isdir(self.path)
 
     def init(self):
         if self.exists: return
         run("mkdir -p {0} && cd {0} &&  mkdir {1}.git && cd {1}.git && git init --bare".format(app.config["REPOHOME"], self.slug))
 
-    def clone(self, url, branch = "HEAD"):
+    def cloneFrom(self, url, branch = "HEAD"):
         if self.exists: return
         self.upstream = url + " " + branch
         run("mkdir -p {0} && cd {0} && git clone {2} {1}.git b {3} --bare".format(app.config["REPOHOME"], self.slug. url, branch))
@@ -188,4 +188,8 @@ class Repository(db.Model):
 
         return False
 
-# EOF
+    @property
+    def git(self):
+        if not self._git:
+            self._git = Git(self.path)
+        return self._git

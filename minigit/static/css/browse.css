@@ -1,0 +1,52 @@
+.git-url {
+    margin-bottom: 10px;
+}
+
+.git-url * {
+    padding: 2px 6px !important;
+    font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+}
+
+.branch-select * {
+    padding: 2px 6px !important;
+    height: 2.2em;
+}
+
+table.files {
+    margin: 0;
+}
+
+table.files li {
+    padding: 4px 10px;
+    background: #EEE;
+    border: 1px solid #CCC;
+}
+
+ul.files li.folder {
+    font-weight: bold;
+    color: #880;
+}
+
+.icon-16 {
+    width: 16px;
+    height: 16px;
+    background-position: 0 0;
+    line-height: 16px;
+    vertical-align: top;
+}
+
+.icon-file-text {
+    background-image: url("../gfx/icons/page_white_text.png");
+}
+
+.icon-file-folder {
+    background-image: url("../gfx/icons/folder.png");
+}
+
+.icon-file-image {
+    background-image: url("../gfx/icons/image.png");
+}
+
+.icon-file-unknown {
+    background-image: url("../gfx/icons/page_white.png");
+}

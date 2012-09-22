@@ -1,0 +1,39 @@
+.image-preview {
+    text-align: center;
+}
+
+.image-preview img {
+    max-width: 90%;
+    max-height: 500px;
+
+    border: 1px solid #DDD;
+}
+
+.image-preview .mode {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #DDD;
+    padding: 0;
+    margin: 4px 0;
+    vertical-align: middle;
+}
+
+.image-preview .active .mode {
+    border-color: #BBB;
+}
+
+.image-preview .mode.white,
+.image-preview.white img {
+    background: #FFF;
+}
+
+.image-preview .mode.black,
+.image-preview.black img {
+    background: #000;
+}
+
+.image-preview .mode.transparent,
+.image-preview.transparent img {
+    background: #FFF url("../gfx/background.png");
+}

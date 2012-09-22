@@ -22,6 +22,7 @@ db = SQLAlchemy(app)
 
 Markdown(app, safe_mode="escape")
 
+import minigit.filters
 import minigit.views
 import minigit.models
 #import minigit.login
