@@ -8,6 +8,6 @@ For read/write permission control, the webapp writes a `command=$MINIGIT/gitserv
 
 Git remote URLs will have this pattern:
 
-git://${gituser}@${yourserver}:${sshport}/${repo-slug}.git
+    git://${gituser}@${yourserver}:${sshport}/${repo-slug}.git
 
 The bare repositories will be created in the home directory of the git user. Each repository will have the "extionsion" .git at the folder name.
