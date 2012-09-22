@@ -35,9 +35,13 @@ def logout():
     flash("You were logged out.", category = "success")
     return redirect(url_for("login"))
 
-@app.route("/list/")
+@app.route("/list/repositories/")
 def repositories():
     return render_template("repositories.html", list = Repository.query.all())
+
+@app.route("/list/users/")
+def users():
+    return render_template("users.html", list = User.query.all())
 
 @app.route("/<slug>/")
 def repository(slug):
@@ -48,12 +52,59 @@ def not_implemented():
     flash("This feature is not yet implemented.", category = "error")
     return redirect(url_for("index"))
 
-@app.route("/<slug>/admin/permissions/")
+@app.route("/<slug>/admin/permissions/", methods = ["GET", "POST"])
 def permissions(slug):
     repo = get_repo(slug)
     repo.requirePermission("admin")
 
-    return render_template("repo/permissions.html", repo = repo)
+    implicit_access = ImplicitAccessForm()
+    add_user_permission = AddUserPermissionForm()
+
+    if "implicit" in request.args and implicit_access.validate_on_submit():
+        repo.implicit_access = implicit_access.level.data
+        db.session.commit()
+        flash("The implicit access setting has been saved.", category = "success")
+    elif request.method == "GET":
+        implicit_access.level.data = repo.implicit_access
+
+    if "add" in request.args and add_user_permission.validate_on_submit():
+        username = add_user_permission.username.data.strip()
+        level = add_user_permission.level.data
+
+        user = User.query.filter_by(username = username).first()
+
+        if user == get_current_user():
+            flash("You cannot edit your own permissions. Give another user admin rights and ask them to do it for you.", category = "error")
+        else:
+            repo.setUserPermission(user, level)
+            db.session.commit()
+            flash("The permission for <b>%s</b> has been set to <b>%s</b>." % (username, level), category = "success")
+
+    return render_template("repo/permissions.html", repo = repo, implicit_access = implicit_access, add_user_permission = add_user_permission)
+
+@app.route("/<slug>/admin/permissions/<username>/<action>")
+def permissions_action(slug, username, action):
+    repo = get_repo(slug)
+    repo.requirePermission("admin")
+
+    user = User.query.filter_by(username = username).first_or_404()
+
+    if user == get_current_user():
+        flash("You cannot set your own permission down. Give another user admin rights and ask them to do it for you.", category = "error")
+    else:
+        if action == "remove":
+            repo.clearUserPermission(user)
+            db.session.commit()
+            flash("The permission for <b>%s</b> has been reset to the implicit access level." % username, category = "success")
+        elif action in ("none", "find", "read", "write", "admin"):
+            repo.setUserPermission(user, action)
+            db.session.commit()
+            flash("The permission for <b>%s</b> has been set to <b>%s</b>." % (username, action), category = "success")
+        else:
+            abort(404)
+
+    return redirect(url_for("permissions", slug = slug))
+
 
 @app.route("/<slug>/commits/")
 @app.route("/<slug>/commits/<ref>/")

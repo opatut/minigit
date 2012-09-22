@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_formhelpers.html" import form_errors %}
 
 {% block title %}Permissions &middot; /{{ repo.slug }} &middot; {{ repo.title }}{% endblock %}
 
@@ -12,20 +13,26 @@
     <h3>{{ repo.title }} <small>Permission managment</small></h3>
 </div>
 
+{% if repo.implicit_access == "admin" %}
+    <div class="alert alert-danger">
+        <strong>Warning!</strong> Everyone will be able
+        to access this page, restrict your permissions and
+        lock you out of this repository. Only use "Admin" as implicit
+        access level when you trust all other users.
+    </div>
+{% endif %}
+
 <div class="row-fluid">
     <div class="span6">
 
         <h4>Implicit access</h4>
-        <form>
+        <form method="post" action="{{ url_for('permissions', slug = repo.slug) }}?implicit">
+            {{ implicit_access.hidden_tag() }}
+            {{ form_errors(implicit_access) }}
+
             <div class="input-append">
-                <select class="span3">
-                    <option>None</option>
-                    <option>Find</option>
-                    <option>Read</option>
-                    <option>Write</option>
-                    <option>Admin</option>
-                </select>
-                <button type="submit" class="btn">Save</button>
+                {{ implicit_access.level(class = "span3") }}
+                {{ implicit_access.submit(class="btn btn-primary") }}
             </div>
 
             <span class="help-block">
@@ -43,19 +50,19 @@
         <table class="table table-bordered table-striped table-condensed table-hover">
             <tr>
                 <th><span class="badge">None</span></th>
-                <td>hidden in repository list</td>
+                <td>no access to repository</td>
             </tr>
             <tr>
                 <th><span class="badge badge-info">Find</span></th>
-                <td>no access to repository content</td>
+                <td>repository shown in list, no access</td>
             </tr>
             <tr>
                 <th><span class="badge badge-success">Read</span></th>
-                <td>file browser, commit list, git clone/fetch</td>
+                <td>file browser, commit list, <b>git clone / fetch / pull</b></td>
             </tr>
             <tr>
                 <th><span class="badge badge-warning">Write</span></th>
-                <td><span class="badge badge-success">Read</span> + git push</td>
+                <td><span class="badge badge-success">Read</span> + <b>git push</b></td>
             </tr>
             <tr>
                 <th><span class="badge badge-important">Admin</span></th>
@@ -72,7 +79,7 @@
 
 
         {% macro userPermissionLink(perm, level, color) %}
-            <a href="#" class="btn btn-mini {% if perm.access == level %}btn-{{ color }}{% endif %}">
+            <a href="{% if current_user == perm.user %}#{% else %}{{ url_for('permissions_action', slug = repo.slug, username = perm.user.username, action = level) }}{% endif %}" class="btn btn-mini {% if perm.access == level %}btn-{{ color }}{% endif %} {% if current_user == perm.user %}disabled{% endif %}">
                 {{ level }}
             </a>
         {% endmacro %}
@@ -93,10 +100,7 @@
                     {{ userPermissionLink(p, "admin", "danger") }}
                     </td>
                     <td>
-                        <a href="#" class="btn btn-mini">
-                            Remove
-                        </a>
-
+                        {{ userPermissionLink(p, "remove", "unknown") }}
                     </td>
                 </tr>
                 {% endfor %}
@@ -104,16 +108,12 @@
         </table>
 
         <h5>Add a user</h5>
-        <form class="form form-inline">
-            <input type="text" placeholder="Username">
-            <select class="span3">
-                <option>None</option>
-                <option>Find</option>
-                <option>Read</option>
-                <option>Write</option>
-                <option>Admin</option>
-            </select>
-            <input type="submit" class="btn btn-primary" value="Add">
+        <form class="form form-inline" method="post" action="{{ url_for('permissions', slug = repo.slug) }}?add">
+            {{ add_user_permission.hidden_tag() }}
+            {{ form_errors(add_user_permission) }}
+            {{ add_user_permission.username(placeholder = "Username") }}
+            {{ add_user_permission.level(class = "span3") }}
+            {{ add_user_permission.submit(class = "btn btn-primary") }}
         </form>
     </div>
 </div>

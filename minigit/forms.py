@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask.ext.wtf import Form, TextField, TextAreaField, PasswordField, SelectField, HiddenField, BooleanField, Required, Length, EqualTo, Optional, NumberRange, Email, ValidationError, URL, Regexp
+from flask.ext.wtf import Form, SubmitField, TextField, TextAreaField, PasswordField, SelectField, HiddenField, BooleanField, Required, Length, EqualTo, Optional, NumberRange, Email, ValidationError, URL, Regexp
 from flask.ext.wtf.html5 import EmailField
 
 from minigit import app
@@ -67,3 +67,22 @@ class RegistrationForm(Form):
     email = EmailField("Email", validators=[
             Not(EmailExists(), message = "That email address is already in use."),
             Email(message = "The email address you entered is invalid.")])
+
+class AddUserPermissionForm(Form):
+    username = TextField("Username", validators = [UsernameExists()])
+    level = SelectField("Access Level", choices = [
+        ("none", "None"),
+        ("find", "Find"),
+        ("read", "Read"),
+        ("write", "Write"),
+        ("admin", "Admin")])
+    submit = SubmitField("Add")
+
+class ImplicitAccessForm(Form):
+    level = SelectField("Access Level", choices = [
+        ("none", "None"),
+        ("find", "Find"),
+        ("read", "Read"),
+        ("write", "Write"),
+        ("admin", "Admin")])
+    submit = SubmitField("Save")

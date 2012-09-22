@@ -13,16 +13,20 @@
 
 <ul class="nav nav-list">
 
-{% if repo %}
+{% if repo and repo.userHasPermission(current_user, "read") %}
     {{ menuCategory("Repository &middot; " | safe + repo.title) }}
     {{ menuEntry("Source Browser", "file", "browse", {"slug" : repo.slug, "ref" : "HEAD", "path" : ""}) }}
     {{ menuEntry("Commit history", "time", "commits", {"slug" : repo.slug} ) }}
+
+    {% if repo.userHasPermission(current_user, "admin") %}
     {{ menuEntry("Permissions", "user", "permissions", {"slug" : repo.slug} ) }}
+    {% endif %}
 {% endif %}
 
     {{ menuCategory("General") }}
-    {{ menuEntry("Activity", "play-circle", "index") }}
+    {{ menuEntry("Dashboard", "home", "index") }}
     {{ menuEntry("Repository list", "list", "repositories") }}
+    {{ menuEntry("User list", "user", "users") }}
 
 {% if current_user %}
     {{ menuCategory("User Menu &middot; " | safe + current_user.username) }}

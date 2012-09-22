@@ -9,7 +9,13 @@
 
 {% for repo in list %}
     <h4>
-        <a href="{{ url_for('browse', slug = repo.slug, ref = 'HEAD', path = '') }}">{{ repo.title }}</a>
+        {% if repo.getUserPermission(current_user) == "find" %}
+            <span class="label label-important" style="vertical-align: 3px;">Restricted</span>
+            {{ repo.title }}
+        {% else %}
+            <a href="{{ url_for('browse', slug = repo.slug, ref = 'HEAD', path = '') }}">{{ repo.title }}</a>
+        {% endif %}
+
         <small>/{{ repo.slug }}</small>
     </h4>
 {% endfor %}

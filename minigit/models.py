@@ -152,7 +152,7 @@ class Repository(db.Model):
         if not self.userHasPermission(get_current_user(), permission):
             abort(403)
 
-    def clearUserPermission(self, user, permission):
+    def clearUserPermission(self, user):
         perm = Permission.query.filter_by(user_id = user.id, repository_id = self.id).first()
         db.session.delete(perm)
 

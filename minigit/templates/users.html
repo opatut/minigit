@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3>User List</h3>
+</div>
+
+<ul class="users">
+{% for user in list %}
+    <li class="span3">
+        <div class="well well-small user">
+            <div class="avatar">
+                <img src="{{ user.getAvatar(40) }}" alt="{{ user.username }}'s avatar">
+            </div>
+
+            <div class="text">
+                <h5>{{ user.username }}</h5>
+                <a href="#TODO">Profile</a>
+            </div>
+        </div>
+    </li>
+{% endfor %}
+</ul>
+
+{% endblock %}
+
