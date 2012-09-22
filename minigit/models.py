@@ -8,6 +8,7 @@ from minigit import app, db
 from minigit.util import *
 from flask import url_for, Markup
 from minigit.git import *
+from minigit.login import *
 
 class Email(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -102,7 +103,7 @@ class Permission(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     repository_id = db.Column(db.Integer, db.ForeignKey("repository.id"))
-    access = db.Column(db.Enum("read", "write", "admin"), default = "read")
+    access = db.Column(db.Enum("none", "find", "read", "write", "admin"), default = "none")
 
     def __init__(self, user, repository, access):
         self.user = user
@@ -115,6 +116,7 @@ class Repository(db.Model):
     title = db.Column(db.String(128))
     upstream = db.Column(db.String(256)) # URL BRANCH
     is_public = db.Column(db.Boolean, default = True)
+    implicit_access = db.Column(db.Enum("none", "find", "read", "write", "admin"), default = "none")
 
     permissions = db.relationship("Permission", backref = "repository", lazy = "dynamic")
 
@@ -145,34 +147,37 @@ class Repository(db.Model):
         self.upstream = url + " " + branch
         run("mkdir -p {0} && cd {0} && git clone {2} {1}.git b {3} --bare".format(app.config["REPOHOME"], self.slug. url, branch))
 
-    def setUserPermission(self, user, permission):
-        """ `permissions` can be either of: none, read, write, admin """
-        p = self.getUserPermission(user)
-        if p == permission: return
+    def requirePermission(self, permission):
+        require_login()
+        if not self.userHasPermission(get_current_user(), permission):
+            abort(403)
 
-        if p == "none":
+    def clearUserPermission(self, user, permission):
+        perm = Permission.query.filter_by(user_id = user.id, repository_id = self.id).first()
+        db.session.delete(perm)
+
+    def setUserPermission(self, user, permission):
+        """ `permissions` can be either of: none, find, read, write, admin """
+        perm = Permission.query.filter_by(user_id = user.id, repository_id = self.id).first()
+
+        if not perm:
             # we have no permission object, create it
             perm = Permission(user, self, permission)
             db.session.add(perm)
         else:
-            # we have a permission object and don't want it
-            perm = Permission.query.filter_by(user_id = user.id, repository_id = self.id).first()
-            if permission == "none":
-                db.session.delete(perm)
-            else:
-                perm.access = permission
+            # we have a permission object, edit it
+            perm.access = permission
 
     def getUserPermission(self, user):
         p = Permission.query.filter_by(user_id = user.id, repository_id = self.id).first()
         if not p:
-            return "none"
+            return self.implicit_access
         else:
             return p.access
 
-    """ Users with is_admin flag do not require explicit read/write access """
+    """ Users with is_admin flag have implicit admin access"""
     def userHasPermission(self, user, permission):
         p = self.getUserPermission(user)
-        log_access(p)
 
         if permission == "admin":
             return p == "admin" or user.is_admin
@@ -181,7 +186,10 @@ class Repository(db.Model):
             return p in ("write", "admin")  or user.is_admin
 
         if permission == "read":
-            return p in ("read", "write", "admin") or user.is_admin or self.is_public
+            return p in ("read", "write", "admin") or user.is_admin
+
+        if permission == "find":
+            return p in ("find", "read", "write", "admin") or user.is_admin
 
         if permission == "none":
             return not self.is_public and p == "none"

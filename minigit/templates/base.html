@@ -16,7 +16,7 @@
         {% block head %}{% endblock %}
     </head>
 
-    <body>
+    <body class="default">
         <div id="wrapper">
             <div id="body">
                 <div class="container">
@@ -25,20 +25,21 @@
                             <div class="well sidebar-nav">
                                 {% include "menu.html" %}
                             </div>
+
+                            {% if current_user %}
+                            <div class="well well-small logged-in-info">
+                                <div class="avatar"><img src="{{ current_user.getAvatar(48) }}" ></div>
+                                <div class="text">
+                                    <span class="logged-in-as">Logged in as</span><br />
+                                    <span class="logged-in-user">{{ current_user.username }}</span>
+                                    <span class="logout-link"><a href="{{ url_for('logout') }}">Logout</a></span>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="span9">
                             <div class="content">
-                                {% set flashes = get_flashed_messages(with_categories = True) %}
-                                {% if flashes %}
-                                    <div class="flashes">
-                                    {% for category, message in flashes %}
-                                        <div class="alert{{ (' alert-' + category) if category and category != 'message' else '' }}">
-                                            <button type="button" class="close" data-dismiss="alert">×</button>
-                                            {{ message }}
-                                        </div>
-                                    {% endfor %}
-                                    </div>
-                                {% endif %}
+                                {% include "flashes.html" %}
 
                                 {% block content %}
                                 {% endblock %}

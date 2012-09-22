@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Permissions &middot; /{{ repo.slug }} &middot; {{ repo.title }}{% endblock %}
+
+{% block head %}
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/permissions.css') }}" />
+    <script src="{{ url_for('static', filename='js/permissions.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3>{{ repo.title }} <small>Permission managment</small></h3>
+</div>
+
+<div class="row-fluid">
+    <div class="span6">
+
+        <h4>Implicit access</h4>
+        <form>
+            <div class="input-append">
+                <select class="span3">
+                    <option>None</option>
+                    <option>Find</option>
+                    <option>Read</option>
+                    <option>Write</option>
+                    <option>Admin</option>
+                </select>
+                <button type="submit" class="btn">Save</button>
+            </div>
+
+            <span class="help-block">
+                Please select the level of access for users without an explicit
+                permission level. All users not explicitly assigned
+                on the right will have this level of access.
+            </span>
+        </form>
+
+        <hr />
+
+
+        <h4>Permission levels</h4>
+
+        <table class="table table-bordered table-striped table-condensed table-hover">
+            <tr>
+                <th><span class="badge">None</span></th>
+                <td>hidden in repository list</td>
+            </tr>
+            <tr>
+                <th><span class="badge badge-info">Find</span></th>
+                <td>no access to repository content</td>
+            </tr>
+            <tr>
+                <th><span class="badge badge-success">Read</span></th>
+                <td>file browser, commit list, git clone/fetch</td>
+            </tr>
+            <tr>
+                <th><span class="badge badge-warning">Write</span></th>
+                <td><span class="badge badge-success">Read</span> + git push</td>
+            </tr>
+            <tr>
+                <th><span class="badge badge-important">Admin</span></th>
+                <td><span class="badge badge-success">Read</span> + <span class="badge badge-warning">Write</span> + permission management</td>
+            </tr>
+        </table>
+    </div>
+    <div class="span6">
+
+        <h4>Explicit user permissions</h4>
+        <p>
+            Here you can set the permissions on a per-user basis.
+        </p>
+
+
+        {% macro userPermissionLink(perm, level, color) %}
+            <a href="#" class="btn btn-mini {% if perm.access == level %}btn-{{ color }}{% endif %}">
+                {{ level }}
+            </a>
+        {% endmacro %}
+
+        <table class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
+                <tr><th>User</th><th>Level of access</th><th>Remove</th></tr>
+            </thead>
+            <tbody>
+                {% for p in repo.permissions %}
+                <tr>
+                    <td>{{ p.user.username }}</td>
+                    <td>
+                    {{ userPermissionLink(p, "none", "inverse") }}
+                    {{ userPermissionLink(p, "find", "info") }}
+                    {{ userPermissionLink(p, "read", "success") }}
+                    {{ userPermissionLink(p, "write", "warning") }}
+                    {{ userPermissionLink(p, "admin", "danger") }}
+                    </td>
+                    <td>
+                        <a href="#" class="btn btn-mini">
+                            Remove
+                        </a>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h5>Add a user</h5>
+        <form class="form form-inline">
+            <input type="text" placeholder="Username">
+            <select class="span3">
+                <option>None</option>
+                <option>Find</option>
+                <option>Read</option>
+                <option>Write</option>
+                <option>Admin</option>
+            </select>
+            <input type="submit" class="btn btn-primary" value="Add">
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+

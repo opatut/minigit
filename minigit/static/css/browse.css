@@ -47,6 +47,7 @@ ul.files li.folder {
     background-image: url("../gfx/icons/image.png");
 }
 
+.icon-file-empty,
 .icon-file-unknown {
     background-image: url("../gfx/icons/page_white.png");
 }

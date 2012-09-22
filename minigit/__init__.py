@@ -25,11 +25,12 @@ Markdown(app, safe_mode="escape")
 import minigit.filters
 import minigit.views
 import minigit.models
-#import minigit.login
+import minigit.login
+import minigit.forms
 
 @app.context_processor
 def inject():
     return dict(
-        #current_user = minigit.login.get_current_user(),
+        current_user = minigit.login.get_current_user(),
         current_datetime = datetime.utcnow()
     )

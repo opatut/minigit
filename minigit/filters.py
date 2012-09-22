@@ -2,7 +2,8 @@ from minigit import app
 from datetime import *
 from dateutil import relativedelta
 from flask import Markup
-import time, os
+import time, os, pygments, pygments.lexers, pygments.formatters
+from os.path import *
 
 # format a timestamp in default format (0000-00-00 00:00:00)
 @app.template_filter()
@@ -12,6 +13,33 @@ def formattime(s):
 @app.template_filter()
 def nicedate(s):
     return s.strftime("%B %d, %Y")
+
+@app.template_filter()
+def highlightsheet(s):
+    return pygments.formatters.HtmlFormatter(style = s).get_style_defs('.highlight')
+
+@app.template_filter()
+def highlight(s, filename):
+    lexer = pygments.lexers.get_lexer_for_filename(filename, stripall = True)
+    print lexer
+    formatter = pygments.formatters.HtmlFormatter(linenos = True)
+    return Markup(pygments.highlight(s, lexer, formatter))
+
+@app.template_filter()
+def parentpath(s):
+    return normpath(join(s, ".."))
+
+@app.template_filter()
+def newlines(s):
+    return Markup(s.replace("<", "&lt;").strip("\n").replace("\n", "<br />"))
+
+@app.template_filter()
+def filesize(s):
+    s = int(s)
+    for x in ['B', 'KB','MB','GB','TB']:
+        if s < 1024.0:
+            return "%3.f %s" % (s, x)
+        s /= 1024.0
 
 def _s(n, s):
     if n == 0:

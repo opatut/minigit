@@ -1,0 +1,24 @@
+{% extends "base-basic.html" %}
+{% from "_formhelpers.html" import form_errors %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div class="well">
+    <form class="form-inline" style="margin: 0;" method="post" action="{{ url_for('login') }}">
+        {{ form.hidden_tag() }}
+        {{ form_errors(form) }}
+        {{ form.next() }}
+        {{ form.username(placeholder="Username", class="span2") }}
+        {{ form.password(placeholder="Password", class="span2") }}
+        <button type="submit" class="btn btn-primary">Sign in</button>
+    </form>
+</div>
+
+<p style="color: #888; text-align: center; font-size: 0.9em;">
+    <strong>No account?</strong>
+    Registrations are disabled. Please contact your administrator.
+</p>
+
+{% endblock %}

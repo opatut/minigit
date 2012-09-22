@@ -2,6 +2,7 @@
 from minigit.util import *
 from mimetypes import guess_type
 from os.path import join, split, splitext
+from fnmatch import *
 
 class GitBlob(object):
     is_tree = False
@@ -9,6 +10,7 @@ class GitBlob(object):
     _content = None
     _type = None
     _path = None
+    _size = None
 
     def __init__(self, ref, name, tree):
         self.ref = ref
@@ -56,6 +58,12 @@ class GitBlob(object):
                     self._type = "unknown"
         return self._type
 
+    @property
+    def size(self):
+        if not self._size:
+            self._size = run("cd %s && git cat-file -s %s" % (self.tree.git.path, self.ref))
+        return self._size
+
 class GitTree(object):
     is_tree = True
     is_blob = False
@@ -64,7 +72,6 @@ class GitTree(object):
     type = "folder"
 
     def __init__(self, ref, name, git, parent = None):
-        print "Made a tree named %s with ref %s" % (name, ref)
         self.ref = ref
         self.git = git
         self.name = name
@@ -105,16 +112,17 @@ class GitTree(object):
             path = []
             for p in _path:
                 if p: path.append(p)
-            print "OMG: " + str(path)
 
         if len(path) == 0:
             return self
 
         for c in self.children:
-            if path[0] == c.name:
+            if fnmatch(c.name, path[0]):
                 if type(c) == GitBlob:
                     return c
-                return c.find(path[1:])
+                m = c.find(path[1:])
+                if m:
+                    return m
 
         return None
 
@@ -149,7 +157,6 @@ class GitCommit(object):
     def author(self):
         if not self._author:
             self._author = get_email_user(extract_email(self.author_raw))
-            print "Author " + str(self._author)
         return self._author
 
     @property
@@ -201,6 +208,7 @@ class GitCommit(object):
 
 class Git(object):
     _branches = None
+    _commit_cache = {}
 
     def __init__(self, path):
         self.path = path
@@ -209,7 +217,9 @@ class Git(object):
         return GitTree(ref, "", self, None)
 
     def getCommit(self, ref):
-        return GitCommit(ref, self)
+        if not ref in self._commit_cache.keys():
+            self._commit_cache[ref] = GitCommit(ref, self)
+        return self._commit_cache[ref]
 
     def getCommits(self, ref = "HEAD"):
         raw = run("cd %s && git log %s --oneline --no-abbrev-commit" % (self.path, ref))

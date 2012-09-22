@@ -1,0 +1,9 @@
+{% if file.extension in ("md", "markdown") %}
+    <div class="markdown markdown-file">
+        {{ file.content | markdown }}
+    </div>
+{% else %}
+    <div class="codefile">
+        {{ file.content | highlight(file.name) }}
+    </div>
+{% endif %}

@@ -14,18 +14,22 @@
 <ul class="nav nav-list">
 
 {% if repo %}
-    {{ menuCategory(repo.title) }}
+    {{ menuCategory("Repository &middot; " | safe + repo.title) }}
     {{ menuEntry("Source Browser", "file", "browse", {"slug" : repo.slug, "ref" : "HEAD", "path" : ""}) }}
     {{ menuEntry("Commit history", "time", "commits", {"slug" : repo.slug} ) }}
-    {{ menuEntry("Permissions", "user", "not_implemented") }}
+    {{ menuEntry("Permissions", "user", "permissions", {"slug" : repo.slug} ) }}
 {% endif %}
 
     {{ menuCategory("General") }}
     {{ menuEntry("Activity", "play-circle", "index") }}
     {{ menuEntry("Repository list", "list", "repositories") }}
 
-    {{ menuCategory("User") }}
+{% if current_user %}
+    {{ menuCategory("User Menu &middot; " | safe + current_user.username) }}
     {{ menuEntry("Profile", "wrench", "not_implemented") }}
     {{ menuEntry("SSH Keys", "lock", "not_implemented") }}
     {{ menuEntry("Email addresses", "envelope", "not_implemented") }}
+{% else %}
+    {{ menuEntry("Login", "user", "login") }}
+{% endif %}
 </ul>

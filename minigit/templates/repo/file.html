@@ -7,6 +7,11 @@
 {% block head %}
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/file.css') }}" />
     <script src="{{ url_for('static', filename='js/file.js') }}"></script>
+
+    <style>
+        {# vs tango autumn borland #}
+        {{ "tango" | highlightsheet }}
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +34,7 @@
 {% include "repo/path.html" %}
 
 {% if file.type == "text" %}
-    <pre>{{ file.content }}</pre>
+    {% include "render_file.html" %°
 {% elif file.type == "image" %}
     <div class="well image-preview white">
         <p>

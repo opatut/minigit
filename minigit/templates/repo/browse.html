@@ -43,11 +43,11 @@
         <div class="avatar">
             <img src="{{ commit.author.getAvatar(24) }}">
         </div>
-        {{ commit.author.username }}
+        <a href="#TODO">{{ commit.author.username }}</a>
     </div>
 
     <div class="message">
-        {{ commit.message }}
+        {{ commit.message | newlines }}
         <span class="hash">{{ repo.git.refHash(commit.ref)[:10] }}</span>
     </div>
 </div>
@@ -57,17 +57,26 @@
     <tr>
         <th width="16"></th>
         <th>Filename</th>
+        <th>Size</th>
         <th>Last changed</th>
         <th>Commit Message</th>
     </tr>
     </thead>
     <tbody>
+    {% if path %}
+    <tr class="folder">
+        <td><i class="icon-16 icon-file-folder"></i></td>
+        <td><a href="{{ url_for('browse', slug = repo.slug, ref = ref, path = path | parentpath) }}">[..]</a></td>
+        <td colspan="3"><i>- parent directory -</i></td>
+    </tr>
+    {% endif %}
+
 {% for file in tree.children %}
     {% set last = repo.git.lastChangedCommit(ref, file.path) %}
-
     <tr class="{% if file.is_tree %}folder{% else %}file{% endif %}">
         <td><i class="icon-16 icon-file-{{ file.type or 'unknown' }}"></i></td>
         <td><a href="{{ url_for('browse', slug = repo.slug, ref = ref, path = file.path) }}">{{ file.name }}</a></td>
+        <td>{% if file.is_blob %}{{ file.size | filesize }}{% else %}&mdash;{% endif %}</td>
         <td>{{ last.author_time | humantime }}</td>
         <td>
             {{ last.message[:70] }}{% if last.message | length > 70 %}...{% endif %}
@@ -78,5 +87,16 @@
 {% endfor %}
     </tbody>
 </table>
+
+
+{# SHOW README IF ANY #}
+{% set file = tree.find("README*") %}
+{% if file %}
+    <br />
+    {% include "render_file.html" %}
+{% elif path == "" %}
+    <p>You should add a readme file.</p>
+{% endif %}
+
 
 {% endblock %}
