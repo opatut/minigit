@@ -50,6 +50,11 @@ class LoginValidator(object):
         elif u.password != hash_password(form[self.pw_field].data):
             raise ValidationError(self.message_password)
 
+class IsPublicKey(object):
+    def __call__(self, form, field):
+        if not verify_key(field.data.strip()):
+            raise ValidationError("This is not a valid publickey.")
+
 ############## FORMS ####################
 
 class LoginForm(Form):
@@ -86,3 +91,14 @@ class ImplicitAccessForm(Form):
         ("write", "Write"),
         ("admin", "Admin")])
     submit = SubmitField("Save")
+
+class AddPublicKeyForm(Form):
+    key = TextAreaField("Public Key", validators = [Required(), IsPublicKey()])
+    name = TextField("Key Name", validators = [Required()])
+    submit = SubmitField("Add")
+
+class AddEmailForm(Form):
+    email = EmailField("Username", validators = [Email(message = "The email address you entered is invalid.")])
+    default = BooleanField("Set as default", default = False)
+    gravatar = BooleanField("Use for gravatar", default = False)
+    submit = SubmitField("Add")

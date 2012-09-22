@@ -124,11 +124,24 @@ html, body.default {
     margin: 0;
 }
 
-.linenos {
-    padding: 0 10px;
+.codefile {
+    overflow: auto;
+    width: 100%;
+    padding: 0;
+    margin: 0;
 }
 
-.highlight {
+.linenos pre {
+    padding: 0 10px;
+    text-align: right;
+}
+
+pre {
+    white-space: pre !important;
+    overflow: auto !important;
+}
+
+.highlight pre {
     background: none !important;
 }
 

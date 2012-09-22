@@ -1,8 +1,18 @@
-import re, os, sys, datetime, subprocess, iso8601, pytz
+import re, os, sys, datetime, subprocess, iso8601, pytz, base64, struct
 from hashlib import sha512
 from minigit import app
 from os.path import *
 from flask import abort
+
+def verify_key(key):
+    try:
+        type, key_string, comment = key.split()
+        data = base64.decodestring(key_string)
+        int_len = 4
+        str_len = struct.unpack('>I', data[:int_len])[0] # this should return the length of the type
+        return data[int_len:int_len + str_len] == type
+    except:
+        return False
 
 def run(p):
     print("$ " + p)

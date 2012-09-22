@@ -43,16 +43,16 @@ def repositories():
 def users():
     return render_template("users.html", list = User.query.all())
 
-@app.route("/<slug>/")
-def repository(slug):
-    return redirect(url_for("browse", slug = slug, ref = "HEAD", path = ""))
-
 @app.route("/not-implemented/")
 def not_implemented():
     flash("This feature is not yet implemented.", category = "error")
     return redirect(url_for("index"))
 
-@app.route("/<slug>/admin/permissions/", methods = ["GET", "POST"])
+@app.route("/repo/<slug>/")
+def repository(slug):
+    return redirect(url_for("browse", slug = slug, ref = "HEAD", path = ""))
+
+@app.route("/repo/<slug>/admin/permissions/", methods = ["GET", "POST"])
 def permissions(slug):
     repo = get_repo(slug)
     repo.requirePermission("admin")
@@ -82,7 +82,7 @@ def permissions(slug):
 
     return render_template("repo/permissions.html", repo = repo, implicit_access = implicit_access, add_user_permission = add_user_permission)
 
-@app.route("/<slug>/admin/permissions/<username>/<action>")
+@app.route("/repo/<slug>/admin/permissions/<username>/<action>")
 def permissions_action(slug, username, action):
     repo = get_repo(slug)
     repo.requirePermission("admin")
@@ -106,28 +106,27 @@ def permissions_action(slug, username, action):
     return redirect(url_for("permissions", slug = slug))
 
 
-@app.route("/<slug>/commits/")
-@app.route("/<slug>/commits/<ref>/")
+@app.route("/repo/<slug>/commits/")
+@app.route("/repo/<slug>/commits/<ref>/")
 def commits(slug, ref = "HEAD"):
     repo = get_repo(slug)
     repo.requirePermission("read")
 
     return render_template("repo/commits.html", repo = repo, commits = repo.git.getCommits(ref))
 
-@app.route("/<slug>/commit/<ref>/")
+@app.route("/repo/<slug>/commit/<ref>/")
 def commits_details(slug, ref):
     repo = get_repo(slug)
     repo.requirePermission("read")
 
     return render_template("repo/commit.html", repo = repo, commit = repo.git.getCommit(ref))
 
-@app.route("/<slug>/browse/<ref>/")
-@app.route("/<slug>/browse/<ref>/<path:path>")
+@app.route("/repo/<slug>/browse/<ref>/")
+@app.route("/repo/<slug>/browse/<ref>/<path:path>")
 def browse(slug, ref = "HEAD", path = ""):
     repo = get_repo(slug)
     repo.requirePermission("read")
 
-    print "Showing %s" % path
     tree = repo.git.getTree(ref)
     node = tree.find(path)
 
@@ -141,7 +140,7 @@ def browse(slug, ref = "HEAD", path = ""):
     else:
         abort(404)
 
-@app.route("/<slug>/raw/<ref>/<path:path>")
+@app.route("/repo/<slug>/raw/<ref>/<path:path>")
 def file_content(slug, ref, path):
     repo = get_repo(slug)
     repo.requirePermission("read")

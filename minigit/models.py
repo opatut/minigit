@@ -54,6 +54,8 @@ class User(db.Model):
         if gravatar: self.setGravatarEmail(e)
 
     def addPublicKey(self, key):
+        if not verify_key(key):
+            raise Error("Invalid SSH Key.")
         k = PublicKey(key, self)
         db.session.add(k)
         self.keys.append(k)

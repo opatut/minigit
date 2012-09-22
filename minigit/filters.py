@@ -20,10 +20,11 @@ def highlightsheet(s):
 
 @app.template_filter()
 def highlight(s, filename):
+    s = s.strip()
     try:
-        lexer = pygments.lexers.get_lexer_for_filename(filename, stripall = True)
+        lexer = pygments.lexers.get_lexer_for_filename(filename)
     except pygments.util.ClassNotFound:
-        lexer = pygments.lexers.TextLexer(stripall = True)
+        lexer = pygments.lexers.TextLexer()
     formatter = pygments.formatters.HtmlFormatter(linenos = True)
     return Markup(pygments.highlight(s, lexer, formatter))
 

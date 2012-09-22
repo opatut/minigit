@@ -39,7 +39,6 @@ def logout_now():
 def require_login():
     if not current_user:
         raise LoginRequired(request.url)
-    print "User logged in:", current_user
 
 def require_user(user):
     require_login()
