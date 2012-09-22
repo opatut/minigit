@@ -5,3 +5,4 @@
 config.py
 env/
 repositories/
+authorized_keys

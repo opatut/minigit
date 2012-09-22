@@ -33,10 +33,15 @@ test = Repository("Test Repository", "test")
 db.session.add(test)
 test.init()
 
+minigit = Repository("Minigit", "minigit")
+db.session.add(minigit)
+minigit.init()
+
 db.session.commit()
 
 test.setUserPermission(opatut, "admin")
 test.setUserPermission(zetaron, "read")
+minigit.setUserPermission(opatut, "admin")
 
 db.session.commit()
 
