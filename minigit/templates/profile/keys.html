@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import form_errors %}
+
+{% block title %}Public Keys{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3>Public Keys</h3>
+</div>
+
+
+<table class="files table table-condensed table-striped well">
+    <thead>
+    <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Fingerprint</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+{% for key in keys %}
+    <tr>
+        <td>{{ key.type }}</td>
+        <td>{{ key.name or "n/a" }}</td>
+        <td><span class="hash">{{ key.fingerprint }}</span></td>
+        <td>
+            <a href="{{ url_for('keys_remove', id = key.id) }}" class="btn btn-mini">Remove</a>
+        </td>
+    </tr>
+{% endfor %}
+{% if not keys %}
+    <tr>
+        <td colspan="5">You don't have any public keys. You need a public key to interact with the repositories using git. Use the form below to add one.</td>
+    </tr>
+{% endif %}
+    </tbody>
+</table>
+
+<h4>Add a Public Key</h4>
+<form class="form well span5 form-horizontal" method="post" action="{{ url_for('keys') }}" style="margin-left: 0;">
+    {{ form.hidden_tag() }}
+    {{ form_errors(form) }}
+
+    <p>
+        {{ form.key(rows = 5, class = "span5", placeholder = "Paste your key here...") }}
+    </p>
+
+    <p>
+        {{ form.name(class = "span4", style = "margin-right: 40px;", placeholder = "Choose a key name...") }}{{ form.submit(class = "btn btn-primary span1") }}
+    </p>
+
+    <p>
+        Please paste your generated <b>public key</b> into the textarea above.
+        Make sure only to copy the key, without any extra linebreaks or whitespaces.
+        The key should start with <code>ssh-rsa</code> or similar.
+    </p>
+
+    <div>
+        For help on generating SSH Keys, visit <a href="https://help.github.com/articles/generating-ssh-keys">the
+        github keygen guide</a> and follow its first three steps.
+    </div>
+</form>
+
+{% endblock %}
+

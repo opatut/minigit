@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask.ext.wtf import Form, SubmitField, TextField, TextAreaField, PasswordField, SelectField, HiddenField, BooleanField, Required, Length, EqualTo, Optional, NumberRange, Email, ValidationError, URL, Regexp
+from flask.ext.wtf import Form, SubmitField, TextField, TextAreaField, PasswordField, SelectField, HiddenField, BooleanField, Required, Length, EqualTo, Optional, NumberRange, Email as EmailValidator, ValidationError, URL, Regexp
 from flask.ext.wtf.html5 import EmailField
 
 from minigit import app
@@ -71,7 +71,7 @@ class RegistrationForm(Form):
     password2 = PasswordField("Password, again", validators=[EqualTo("password", "Passwords do not match.")])
     email = EmailField("Email", validators=[
             Not(EmailExists(), message = "That email address is already in use."),
-            Email(message = "The email address you entered is invalid.")])
+            EmailValidator(message = "The email address you entered is invalid.")])
 
 class AddUserPermissionForm(Form):
     username = TextField("Username", validators = [UsernameExists()])
@@ -98,7 +98,7 @@ class AddPublicKeyForm(Form):
     submit = SubmitField("Add")
 
 class AddEmailForm(Form):
-    email = EmailField("Username", validators = [Email(message = "The email address you entered is invalid.")])
+    email = EmailField("Username", validators = [EmailValidator(message = "The email address you entered is invalid.")])
     default = BooleanField("Set as default", default = False)
     gravatar = BooleanField("Use for gravatar", default = False)
     submit = SubmitField("Add")

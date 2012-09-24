@@ -24,11 +24,21 @@ class Email(db.Model):
 class PublicKey(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     key = db.Column(db.String(1024), unique = True)
+    name = db.Column(db.String(128))
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
-    def __init__(self, key, user):
-        self.key = key
+    def __init__(self, key, name, user):
+        self.key = key.strip()
+        self.name = name
         self.user = user
+
+    @property
+    def fingerprint(self):
+        return fingerprint(self.key)
+
+    @property
+    def type(self):
+        return keytype(self.key)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -53,10 +63,10 @@ class User(db.Model):
         if default: self.setDefaultEmail(e)
         if gravatar: self.setGravatarEmail(e)
 
-    def addPublicKey(self, key):
+    def addPublicKey(self, key, name = ""):
         if not verify_key(key):
             raise Error("Invalid SSH Key.")
-        k = PublicKey(key, self)
+        k = PublicKey(key, name, self)
         db.session.add(k)
         self.keys.append(k)
 
@@ -71,7 +81,7 @@ class User(db.Model):
         if self.gravatar_email:
             if self.gravatar_email == email:
                 return
-            self.gravatar_email.is_default = False
+            self.gravatar_email.is_gravatar = False
         email.is_gravatar = True
 
     @property
@@ -80,7 +90,7 @@ class User(db.Model):
 
     @property
     def gravatar_email(self):
-        return Email.query.filter_by(user_id = self.id, is_default = True).first()
+        return Email.query.filter_by(user_id = self.id, is_gravatar = True).first()
 
 
     def __repr__(self):

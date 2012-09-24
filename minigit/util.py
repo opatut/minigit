@@ -1,18 +1,30 @@
 import re, os, sys, datetime, subprocess, iso8601, pytz, base64, struct
-from hashlib import sha512
+from hashlib import sha512, md5
 from minigit import app
 from os.path import *
 from flask import abort
 
 def verify_key(key):
     try:
-        type, key_string, comment = key.split()
+        type, key_string, comment = key.strip().split()
         data = base64.decodestring(key_string)
         int_len = 4
         str_len = struct.unpack('>I', data[:int_len])[0] # this should return the length of the type
         return data[int_len:int_len + str_len] == type
     except:
         return False
+
+def fingerprint(key):
+    key = base64.b64decode(key.strip().split(None, 2)[1])
+    fp_plain = md5(key).hexdigest()
+    return ':'.join(a+b for a,b in zip(fp_plain[::2], fp_plain[1::2]))
+
+def keytype(key):
+    try:
+        type, other = key.strip().split(None, 1)
+        return type
+    except:
+        return None
 
 def run(p):
     print("$ " + p)

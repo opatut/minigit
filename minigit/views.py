@@ -155,6 +155,69 @@ def file_content(slug, ref, path):
     response.mimetype = node.mimetype
     return response
 
+@app.route("/profile/keys", methods = ["POST", "GET"])
+def keys():
+    require_login()
+    form = AddPublicKeyForm()
+
+    if form.validate_on_submit():
+        get_current_user().addPublicKey(form.key.data, form.name.data)
+        db.session.commit()
+        generate_authorized_keys()
+        flash("Your key <b>%s</b> has been added successfully." % form.name.data, category = "success")
+        return redirect(url_for("keys"))
+
+    return render_template("profile/keys.html", keys = PublicKey.query.filter_by(user_id = get_current_user().id).all(), form = form)
+
+@app.route("/profile/keys/remove/<int:id>")
+def keys_remove(id):
+    key = PublicKey.query.filter_by(id = id).first_or_404()
+    require_user(key.user)
+    db.session.delete(key)
+    db.session.commit()
+    generate_authorized_keys()
+    flash("Your key <b>%s</b> has been deleted." % key.name, category = "success")
+    return redirect(url_for("keys"))
+
+
+@app.route("/profile/emails", methods = ["POST", "GET"])
+def emails():
+    require_login()
+    form = AddEmailForm()
+
+    if form.validate_on_submit():
+        get_current_user().addEmail(form.email.data, form.default.data, form.gravatar.data)
+        db.session.commit()
+        flash("Your email address <b>%s</b> has been added successfully." % form.email.data, category = "success")
+        return redirect(url_for("emails"))
+
+    return render_template("profile/emails.html", emails = Email.query.filter_by(user_id = get_current_user().id).all(), form = form)
+
+@app.route("/profile/emails/<action>/<int:id>")
+def emails_action(action, id):
+    email = Email.query.filter_by(id = id).first_or_404()
+    require_user(email.user)
+
+    if action == "remove":
+        if email.is_default or email.is_gravatar:
+            flash("You cannot remove your default or gravatar email. Please make another email address the default / gravatar address.", category = "error")
+        else:
+            require_user(email.user)
+            db.session.delete(email)
+            db.session.commit()
+            flash("Your email address <b>%s</b> has been deleted." % email.address, category = "success")
+    elif action == "default":
+        get_current_user().setDefaultEmail(email)
+        db.session.commit()
+        flash("The email address <b>%s</b> has been set as default." % email.address, category = "success")
+    elif action == "gravatar":
+        get_current_user().setGravatarEmail(email)
+        db.session.commit()
+        flash("The email address <b>%s</b> has been set for gravatar use." % email.address, category = "success")
+    else:
+        abort(404)
+
+    return redirect(url_for("emails"))
 
 # ERROR HANDLERS
 

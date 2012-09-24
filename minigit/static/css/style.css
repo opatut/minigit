@@ -26,8 +26,6 @@ html, body.default {
 
 .hash {
     font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
-    font-weight: bold;
-    margin: 0 5px;
 }
 
 .flashes .alert:first-child {
@@ -221,4 +219,13 @@ pre {
 
 .users .user .text h5 {
     margin: 0;
+}
+
+.email-checkbox {
+    width: 120px;
+    display: inline-block;
+}
+
+.email-checkbox * {
+    vertical-align: -3px;
 }

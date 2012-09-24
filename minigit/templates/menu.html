@@ -31,8 +31,8 @@
 {% if current_user %}
     {{ menuCategory("User Menu &middot; " | safe + current_user.username) }}
     {{ menuEntry("Profile", "wrench", "not_implemented") }}
-    {{ menuEntry("SSH Keys", "lock", "not_implemented") }}
-    {{ menuEntry("Email addresses", "envelope", "not_implemented") }}
+    {{ menuEntry("SSH Keys", "lock", "keys") }}
+    {{ menuEntry("Email addresses", "envelope", "emails") }}
 {% else %}
     {{ menuEntry("Login", "user", "login") }}
 {% endif %}

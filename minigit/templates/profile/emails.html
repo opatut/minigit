@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import form_errors %}
+
+{% block title %}Email addresses{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3>Email addresses</h3>
+</div>
+
+
+<table class="files table table-condensed table-striped well">
+    <thead>
+    <tr>
+        <th>Address</th>
+        <th>Default</th>
+        <th>Gravatar</th>
+        <th>Remove</th>
+    </tr>
+    </thead>
+    <tbody>
+{% for email in emails %}
+    <tr>
+        <td>{{ email.address }}</td>
+        <td>
+            <a href="{{ url_for('emails_action', action = 'default', id = email.id) }}" class="btn btn-mini {% if current_user.default_email == email %}btn-success{% endif %}">Default</a>
+        </td>
+        <td>
+            <a href="{{ url_for('emails_action', action = 'gravatar', id = email.id) }}" class="btn btn-mini {% if current_user.gravatar_email == email %}btn-success{% endif %}">Gravatar</a>
+        </td>
+        <td>
+            {% if email.is_default or email.is_gravatar %}
+            <a href="#" class="btn btn-mini disabled">Remove</a>
+            {% else %}
+            <a href="{{ url_for('emails_action', action = 'remove', id = email.id) }}" class="btn btn-mini">Remove</a>
+            {% endif %}
+        </td>
+    </tr>
+{% endfor %}
+{% if not emails %}
+    <tr>
+        <td colspan="4">You don't have any email addresses. That is very bad. Add one below.</td>
+    </tr>
+{% endif %}
+    </tbody>
+</table>
+
+<h4>Add an Email Address</h4>
+<form class="form well form-inline span5" method="post" action="{{ url_for('emails') }}" style="margin-left: 0;">
+    {{ form.hidden_tag() }}
+    {{ form_errors(form) }}
+
+    <div class="input-append">
+        {{ form.email(rows = 5, class = "span4", placeholder = "Email") }}
+        {{ form.submit(class = "btn btn-primary", style = "width: 100px;") }}
+    </div>
+
+    <div class="email-checkbox">
+        {{ form.default() }}
+        {{ form.default.label }}
+    </div>
+
+    <div class="email-checkbox">
+        {{ form.gravatar() }}
+        {{ form.gravatar.label }}
+    </div>
+</form>
+
+{% endblock %}
