@@ -6,4 +6,5 @@ from os.path import *
 activate_this = join(dirname(abspath(__file__)), "env", "bin", "activate_this.py")
 execfile(activate_this, dict(__file__ = activate_this))
 
+sys.path.insert(0, dirname(abspath(__file__)))
 from minigit import app as application
