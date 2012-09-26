@@ -1,0 +1,9 @@
+#!/usr/bin/env python2
+import sys, os, datetime
+from os.path import *
+
+# Activate the virtual environment to load the library.
+activate_this = join(dirname(abspath(__file__)), "env", "bin", "activate_this.py")
+execfile(activate_this, dict(__file__ = activate_this))
+
+from minigit import app as application
