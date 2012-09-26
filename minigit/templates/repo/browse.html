@@ -43,7 +43,7 @@
         <div class="avatar">
             <img src="{{ commit.author.getAvatar(24) }}">
         </div>
-        <a href="{{ user.url }}">{{ commit.author.username }}</a>
+        <a href="{{ commit.author.url }}">{{ commit.author.username }}</a>
     </div>
 
     <div class="message">
@@ -81,7 +81,7 @@
         <td>
             {{ last.message[:70] }}{% if last.message | length > 70 %}...{% endif %}
             - <a href="{{ url_for('commits_details', slug = repo.slug, ref = last.ref) }}">{{ last.ref[:6] }}</a>
-            - <a href="{{ user.url }}">{{ last.author.username }}</a>
+            - <a href="{{ last.author.url }}">{{ last.author.username }}</a>
         </td>
     </tr>
 {% endfor %}
