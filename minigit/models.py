@@ -183,7 +183,7 @@ class Repository(db.Model):
     def getUserPermission(self, user):
         p = Permission.query.filter_by(user_id = user.id, repository_id = self.id).first()
         if not p:
-            return self.implicit_access
+            return self.implicit_access if not user.is_admin else "admin"
         else:
             return p.access
 

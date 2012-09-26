@@ -25,7 +25,7 @@
             {{ commit.message[:70] }}{% if commit.message | length > 70 %}...{% endif %}
         </div>
         <div class="meta">
-            <a href="{{ user.url }}">{{ commit.author.username }}</a> authored {{ commit.author_time | humantime }}
+            <a href="{{ commit.author.url }}">{{ commit.author.username }}</a> authored {{ commit.author_time | humantime }}
             <span class="hash">{{ commit.ref[:10] }}</span>
         </div>
         <div class="buttons">
