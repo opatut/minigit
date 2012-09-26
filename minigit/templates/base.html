@@ -28,10 +28,10 @@
 
                             {% if current_user %}
                             <div class="well well-small logged-in-info">
-                                <div class="avatar"><img src="{{ current_user.getAvatar(48) }}" ></div>
+                                <div class="avatar"><a href="{{ current_user.url }}"><img src="{{ current_user.getAvatar(48) }}" ></a></div>
                                 <div class="text">
                                     <span class="logged-in-as">Logged in as</span><br />
-                                    <span class="logged-in-user">{{ current_user.username }}</span>
+                                    <a href="{{ current_user.url }}" class="logged-in-user">{{ current_user.username }}</a>
                                     <span class="logout-link"><a href="{{ url_for('logout') }}">Logout</a></span>
                                 </div>
                             </div>

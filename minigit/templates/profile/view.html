@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import form_errors %}
+
+{% block title %}{{ user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3>{{ user.username }}'s Profile</h3>
+</div>
+
+<p>
+    There is nothing to view about this user. Statistics are not yet implemented.
+</p>
+
+{% endblock %}
+

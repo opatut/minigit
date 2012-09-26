@@ -15,12 +15,14 @@ class LoginRequired(Exception):
 
 @app.before_request
 def check_login():
+    global current_user
     if "login_id" in session:
-        global current_user # required for writing
         from minigit.models import User
         current_user = User.query.filter_by(id = session["login_id"]).first()
         if not current_user:
             logout_now()
+    else:
+        current_user = None
 
     if not request.endpoint in ("static", "login", "register"):
         require_login()

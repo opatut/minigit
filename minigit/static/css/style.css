@@ -183,6 +183,7 @@ pre {
 .logged-in-info .logged-in-user {
     font-size: 1.4em;
     font-weight: bold;
+    color: #333;
 }
 
 .logged-in-info .logout-link {

@@ -12,12 +12,12 @@
     <li class="span3">
         <div class="well well-small user">
             <div class="avatar">
-                <img src="{{ user.getAvatar(40) }}" alt="{{ user.username }}'s avatar">
+                <a href="{{ user.url }}"><img src="{{ user.getAvatar(40) }}" alt="{{ user.username }}'s avatar"></a>
             </div>
 
             <div class="text">
                 <h5>{{ user.username }}</h5>
-                <a href="#TODO">Profile</a>
+                <a href="{{ user.url }}">Profile</a>
             </div>
         </div>
     </li>

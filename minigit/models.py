@@ -98,7 +98,7 @@ class User(db.Model):
 
     @property
     def url(self, **values):
-        return "#" # url_for('show_user', username = self.username, **values)
+        return url_for('profile', username = self.username, **values)
 
     @property
     def link(self):

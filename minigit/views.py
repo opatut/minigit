@@ -155,6 +155,19 @@ def file_content(slug, ref, path):
     response.mimetype = node.mimetype
     return response
 
+@app.route("/profile")
+@app.route("/profile/<username>")
+def profile(username = ""):
+    require_login()
+
+    if not username:
+        user = get_current_user()
+    else:
+        user = User.query.filter_by(username = username).first_or_404()
+
+    return render_template("profile/view.html", user = user)
+
+
 @app.route("/profile/keys", methods = ["POST", "GET"])
 def keys():
     require_login()
