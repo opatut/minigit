@@ -10,7 +10,10 @@ from minigit.forms import *
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    if get_current_user():
+        return redirect(url_for("repositories"))
+    else:
+        return redirect(url_for("login"))
 
 @app.route("/login", methods = ["POST", "GET"])
 def login():

@@ -24,7 +24,7 @@ def check_login():
     else:
         current_user = None
 
-    if not request.endpoint in ("static", "login", "register"):
+    if not request.endpoint in ("index", "static", "login", "register"):
         require_login()
 
 def login_as(user):
