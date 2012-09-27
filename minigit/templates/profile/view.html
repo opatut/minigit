@@ -12,5 +12,44 @@
     There is nothing to view about this user. Statistics are not yet implemented.
 </p>
 
-{% endblock %}
+{% if current_user == user %}
+<h4>Change Password</h4>
+<div class="well">
+    <form class="form-horizontal" style="margin: 0;" method="post" action="{{ url_for('profile') }}">
+        {{ pw_form.hidden_tag() }}
+        {{ form_errors(pw_form) }}
 
+
+        <div class="control-group">
+            {{ pw_form.old.label(class = "control-label") }}
+            <div class="controls">
+                {{ pw_form.old(placeholder="Enter your old password") }}
+            </div>
+        </div>
+
+        <div class="control-group">
+            {{ pw_form.new.label(class = "control-label") }}
+            <div class="controls">
+                {{ pw_form.new(placeholder="Choose a new password") }}
+            </div>
+        </div>
+
+        <div class="control-group">
+            {{ pw_form.new2.label(class = "control-label") }}
+            <div class="controls">
+                {{ pw_form.new2(placeholder="Type your new password again") }}
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label"></label>
+            <div class="controls">
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endif %}
+
+{% endblock %}

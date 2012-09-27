@@ -4,8 +4,9 @@ from flask.ext.wtf import Form, SubmitField, TextField, TextAreaField, PasswordF
 from flask.ext.wtf.html5 import EmailField
 
 from minigit import app
-from minigit.util import *
 from minigit import models
+from minigit.util import *
+from minigit.login import *
 
 ############## VALIDATORS ####################
 
@@ -55,6 +56,15 @@ class LoginValidator(object):
             raise ValidationError(self.message_username)
         elif u.password != hash_password(form[self.pw_field].data):
             raise ValidationError(self.message_password)
+
+class PasswordValidator(object):
+    def __init__(self, message = "Your password is incorrect."):
+        self.message = message
+
+    def __call__(self, form, field):
+        u = get_current_user()
+        if not u or u.password != hash_password(field.data):
+            raise ValidationError(self.message)
 
 class IsPublicKey(object):
     def __call__(self, form, field):
@@ -122,3 +132,8 @@ class CreateRepositoryForm(Form):
         Optional(),
         Regexp("[0-9a-zA-Z\-_]", message = "The slug contains invalid characters. Only use alphanumeric characters, dashes and underscores.")])
     clone_from = TextField("Clone from URL", validators = [Optional()])
+
+class ChangePasswordForm(Form):
+    old = PasswordField("Current Password", validators = [PasswordValidator()])
+    new = PasswordField("New Password", validators=[Length(min = 6, message = "Please enter a password of at least 6 characters.")])
+    new2 = PasswordField("New Password, again", validators=[EqualTo("new", "Passwords do not match.")])

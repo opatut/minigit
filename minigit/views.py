@@ -14,6 +14,9 @@ def index():
 
 @app.route("/login", methods = ["POST", "GET"])
 def login():
+    if get_current_user():
+        return redirect(url_for("index"))
+
     form = LoginForm()
 
     if form.validate_on_submit():
@@ -43,11 +46,13 @@ def register():
         flash("You are already logged in.", category = "success")
         return redirect(url_for("index"))
 
+    first_user = User.query.count() == 0
     form = RegistrationForm()
 
     if form.validate_on_submit():
         # Create the user
         user = User(form.username.data, form.password.data)
+        user.is_admin = first_user
         db.session.add(user)
         db.session.commit()
 
@@ -66,7 +71,7 @@ def register():
     elif current_user and current_user.is_admin:
         flash("You can register new users because you are logged in as admin.", category = "info")
 
-    return render_template("register.html", form = form)
+    return render_template("register.html", form = form, first_user = first_user)
 
 @app.route("/create", methods = ["POST", "GET"])
 def create_repository():
@@ -219,7 +224,7 @@ def file_content(slug, ref, path):
     response.mimetype = node.mimetype
     return response
 
-@app.route("/profile")
+@app.route("/profile", methods = ["POST", "GET"])
 @app.route("/profile/<username>")
 def profile(username = ""):
     require_login()
@@ -229,7 +234,17 @@ def profile(username = ""):
     else:
         user = User.query.filter_by(username = username).first_or_404()
 
-    return render_template("profile/view.html", user = user)
+    if user == get_current_user():
+        pw_form = ChangePasswordForm()
+
+        if pw_form.validate_on_submit():
+            user.password = hash_password(pw_form.new.data)
+            db.session.commit()
+            flash("Your password has been saved.", category = "success")
+            return redirect(user.url)
+
+    return render_template("profile/view.html", user = user, pw_form = pw_form)
+
 
 
 @app.route("/profile/keys", methods = ["POST", "GET"])

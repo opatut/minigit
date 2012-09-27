@@ -7,6 +7,12 @@
 
 {% block content %}
 
+{% if first_user %}
+<div class="alert alert-info">
+    You are the first user to register. You will be site-wide admin automatically.
+</div>
+{% endif %}
+
 <div class="well">
     <form class="form-horizontal" style="margin: 0;" method="post" action="{{ url_for('register') }}">
         {{ form.hidden_tag() }}
