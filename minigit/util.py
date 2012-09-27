@@ -28,11 +28,20 @@ def keytype(key):
 
 def run(p):
     if app.debug: print("$ " + p)
-    pr = subprocess.Popen(p, shell = True)
-    pr.wait()
-    out, err = pr.communicate()
-    if not out: out = ""
-    return out
+
+    child = subprocess.Popen(p, shell = True, stdout = subprocess.PIPE)
+
+    res = ""
+    while True:
+        out = child.stdout.read(1)
+        if out == '' and child.poll() != None:
+            break
+        if out != '':
+            res += out
+
+    print res
+
+    return res
 
 def get_slug(s):
     s = s.lower()
