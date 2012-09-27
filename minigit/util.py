@@ -39,8 +39,6 @@ def run(p):
         if out != '':
             res += out
 
-    print res
-
     return res
 
 def get_slug(s):
