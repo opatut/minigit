@@ -42,9 +42,18 @@
 <div class="commit-info well">
     <div class="author">
         <div class="avatar">
-            <img src="{{ commit.author.getAvatar(24) }}">
+            {% if commit.author %}
+                <img src="{{ commit.author.getAvatar(24) }}" width="24" height="24" />
+            {% else %}
+                <img src="{{ url_for('static', filename = 'gfx/unknown-avatar.png') }}" width="24" height="24" />
+            {% endif %}
         </div>
+
+        {% if commit.author %}
         <a href="{{ commit.author.url }}">{{ commit.author.username }}</a>
+        {% else %}
+        {{ commit.author_raw or "Unknown" }}
+        {% endif %}
     </div>
 
     <div class="message">
@@ -84,7 +93,12 @@
         <td>
             {{ last.message[:70] }}{% if last.message | length > 70 %}...{% endif %}
             - <a href="{{ url_for('commits_details', slug = repo.slug, ref = last.ref) }}">{{ last.ref[:6] }}</a>
-            - <a href="{{ last.author.url }}">{{ last.author.username }}</a>
+            -
+            {% if last.author %}
+            <a href="{{ last.author.url }}">{{ last.author.username }}</a>
+            {% else %}
+            {{ last.author_raw }}
+            {% endif %}
         </td>
     </tr>
 {% endfor %}
