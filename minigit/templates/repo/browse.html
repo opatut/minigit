@@ -38,6 +38,7 @@
 {% include "repo/path.html" %}
 
 {% set commit = repo.git.getCommit(ref) %}
+{% if commit %}
 <div class="commit-info well">
     <div class="author">
         <div class="avatar">
@@ -51,6 +52,7 @@
         <span class="hash">{{ repo.git.refHash(commit.ref)[:10] }}</span>
     </div>
 </div>
+{% endif %}
 
 <table class="files table table-condensed table-striped well">
     <thead>
@@ -71,6 +73,7 @@
     </tr>
     {% endif %}
 
+{% if tree and tree.children %}
 {% for file in tree.children %}
     {% set last = repo.git.lastChangedCommit(ref, file.path) %}
     <tr class="{% if file.is_tree %}folder{% else %}file{% endif %}">
@@ -85,6 +88,9 @@
         </td>
     </tr>
 {% endfor %}
+{% else %}
+    <tr><td colspan="5"><i>This directory is empty.</i></td></tr>
+{% endif %}
     </tbody>
 </table>
 

@@ -37,6 +37,12 @@ class EmailExists(object):
         if not u:
             raise ValidationError("The username does not exist.")
 
+class PublicKeyExists(object):
+    def __call__(self, form, field):
+        u = models.PublicKey.query.filter_by(key = field.data.strip()).first()
+        if not u:
+            raise ValidationError("The public key does not exist.")
+
 class LoginValidator(object):
     def __init__(self, pw_field, message_username = "The username or password is incorrect.", message_password = "The username or password is incorrect."):
         self.pw_field = pw_field
@@ -64,14 +70,16 @@ class LoginForm(Form):
 
 class RegistrationForm(Form):
     username = TextField("Username", validators=[
-        Regexp("[^0-9a-zA-Z\-_]", message = "Your username contains invalid characters. Only use alphanumeric characters, dashes and underscores."),
+        Required(),
+        Regexp("[0-9a-zA-Z\-_]", message = "The username contains invalid characters. Only use alphanumeric characters, dashes and underscores."),
         Not(UsernameExists(), message = "That username already exists."),
         Length(min = 3, max = 32, message="You have to enter a username of 3 to 32 characters length.")])
     password = PasswordField("Password", validators=[Length(min = 6, message = "Please enter a password of at least 6 characters.")])
     password2 = PasswordField("Password, again", validators=[EqualTo("password", "Passwords do not match.")])
-    email = EmailField("Email", validators=[
-            Not(EmailExists(), message = "That email address is already in use."),
-            EmailValidator(message = "The email address you entered is invalid.")])
+    email = EmailField("Email Address", validators=[
+        Required(),
+        Not(EmailExists(), message = "That email address is already in use."),
+        EmailValidator(message = "The email address you entered is invalid.")])
 
 class AddUserPermissionForm(Form):
     username = TextField("Username", validators = [UsernameExists()])
@@ -93,12 +101,24 @@ class ImplicitAccessForm(Form):
     submit = SubmitField("Save")
 
 class AddPublicKeyForm(Form):
-    key = TextAreaField("Public Key", validators = [Required(), IsPublicKey()])
+    key = TextAreaField("Public Key", validators = [
+        Required(),
+        IsPublicKey(),
+        Not(PublicKeyExists(), message = "This public key is already in use by one of the users, possibly you!?")])
     name = TextField("Key Name", validators = [Required()])
     submit = SubmitField("Add")
 
 class AddEmailForm(Form):
-    email = EmailField("Username", validators = [EmailValidator(message = "The email address you entered is invalid.")])
+    email = EmailField("E-Mail Address", validators = [
+        EmailValidator(message = "The email address you entered is invalid."),
+        Not(EmailExists(), message = "This email address is already in use by one of the users, possibly you!?")])
     default = BooleanField("Set as default", default = False)
     gravatar = BooleanField("Use for gravatar", default = False)
     submit = SubmitField("Add")
+
+class CreateRepositoryForm(Form):
+    title = TextField("Title", validators = [Required()])
+    slug = TextField("Slug", validators = [
+        Optional(),
+        Regexp("[0-9a-zA-Z\-_]", message = "The slug contains invalid characters. Only use alphanumeric characters, dashes and underscores.")])
+    clone_from = TextField("Clone from URL", validators = [Optional()])

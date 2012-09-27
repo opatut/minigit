@@ -3,6 +3,8 @@
 
 {% block title %}Login{% endblock %}
 
+{% block headline %}Login{% endblock %}
+
 {% block content %}
 
 <div class="well">
@@ -16,9 +18,14 @@
     </form>
 </div>
 
+
 <p style="color: #888; text-align: center; font-size: 0.9em;">
     <strong>No account?</strong>
+    {% if registrations_enabled %}
+    <a href="{{ url_for('register') }}">Create a new account here</a>.
+    {% else %}
     Registrations are disabled. Please contact your administrator.
+    {% endif %}
 </p>
 
 {% endblock %}

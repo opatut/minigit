@@ -1,4 +1,18 @@
+# User which is used for git authentication (SSH). Will be ussed to
+# display git remote URLs.
 GIT_USER = "git"
+
+# Domain of the server. Will be used to display the git remote URLs.
 DOMAIN = "localhost"
+
+# The path to where the repositories are saved. User of webapp must
+# have write access. May be absolute or relative.
 REPOHOME = "repositories/"
+
+# Absolute path to the file where SSH look for authorized keys (from
+# sshd_config). User of webapp must have write access.
 AUTHORIZED_KEYS = "/home/git/.ssh/authorized_keys"
+
+# Allow new users to register freely. Logged-in admins can always access
+# the registration page (/register) and add another user.
+REGISTRATION_ENABLED = False

@@ -19,7 +19,7 @@
     <body>
         <div class="container-fluid" style="width: 460px; margin: 100px auto;">
             <div class="page-header">
-                <h1>Login</h1>
+                <h1>{% block headline %}{% endblock %}</h1>
             </div>
             {% include "flashes.html" %}
             {% block content %}{% endblock %}

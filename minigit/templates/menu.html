@@ -29,6 +29,11 @@
     {{ menuEntry("User list", "user", "users") }}
 
 {% if current_user %}
+    {% if current_user.is_admin %}
+    {{ menuEntry("Add a user", "star", "register") }}
+    {% endif %}
+
+
     {{ menuCategory("User Menu &middot; " | safe + current_user.username) }}
     {{ menuEntry("Profile", "wrench", "profile") }}
     {{ menuEntry("SSH Keys", "lock", "keys") }}

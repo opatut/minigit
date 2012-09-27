@@ -27,13 +27,77 @@ def login():
     else:
         form.next.data = request.args.get("next", "")
 
-    return render_template("login.html", form = form)
+    return render_template("login.html", form = form, registrations_enabled = app.config["REGISTRATION_ENABLED"])
 
 @app.route("/logout")
 def logout():
     logout_now()
     flash("You were logged out.", category = "success")
     return redirect(url_for("login"))
+
+@app.route("/register", methods = ["POST", "GET"])
+def register():
+    current_user = get_current_user()
+
+    if current_user and not current_user.is_admin:
+        flash("You are already logged in.", category = "success")
+        return redirect(url_for("index"))
+
+    form = RegistrationForm()
+
+    if form.validate_on_submit():
+        # Create the user
+        user = User(form.username.data, form.password.data)
+        db.session.add(user)
+        db.session.commit()
+
+        # Add email address
+        user.addEmail(form.email.data, True, True)
+        db.session.commit()
+
+        # Goto login
+        if current_user:
+            flash("The user account has been created.", category = "success")
+            return redirect(url_for("register"))
+        else:
+            flash("Your user account has been created. You can now log in.", category = "success")
+            return redirect(url_for("login"))
+
+    elif current_user and current_user.is_admin:
+        flash("You can register new users because you are logged in as admin.", category = "info")
+
+    return render_template("register.html", form = form)
+
+@app.route("/create", methods = ["POST", "GET"])
+def create_repository():
+    require_login()
+
+    form = CreateRepositoryForm()
+
+    if form.validate_on_submit():
+        title = form.title.data.strip()
+        slug = form.slug.data.strip()
+        if not slug: slug = get_slug(title)
+        clone_from = form.clone_from.data.strip()
+
+        if get_repo(slug, False):
+            flash("A repository with the slug <b>%s</b> does already exist." % slug, category = "error")
+        else:
+            repo = Repository(title, slug)
+            db.session.add(repo)
+
+            if clone_from:
+                repo.cloneFrom(clone_from)
+            else:
+                repo.init()
+
+            db.session.commit()
+
+            repo.setUserPermission(get_current_user(), "admin")
+            db.session.commit()
+            return redirect(url_for("repository", slug = repo.slug))
+
+    return render_template("repo/create.html", form = form)
 
 @app.route("/list/repositories/")
 def repositories():

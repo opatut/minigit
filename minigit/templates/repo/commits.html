@@ -12,6 +12,7 @@
     <h3>Commit history <small>{{ repo.title }}</small></h3>
 </div>
 
+{% if commits %}
 <ul class="commits">
     {% set day = None %}
     {% for commit in commits %}
@@ -35,5 +36,11 @@
     </li>
     {% endfor %}
 </ul>
+
+{% else %}
+    <p>
+        There are no commits yet.
+    </p>
+{% endif %}
 
 {% endblock %}

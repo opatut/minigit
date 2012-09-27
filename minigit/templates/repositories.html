@@ -7,6 +7,10 @@
     <h3>Repository List</h3>
 </div>
 
+<p>
+    <a href="{{ url_for('create_repository') }}" class="btn"><i class="icon-plus"></i> Create a Repository</a>
+</p>
+
 {% for repo in list %}
     <h4>
         {% if repo.getUserPermission(current_user) == "find" %}

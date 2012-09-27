@@ -80,25 +80,28 @@ class GitTree(object):
     @property
     def children(self):
         if not self._children:
-            raw = run('cd "%s" && git cat-file -p "%s^{tree}"' % (self.git.path, self.ref))
-            self._children = []
-            for line in raw.splitlines():
-                print line
-                mode, type, ref, name = line.split(None, 3)
-                if type == "blob":
-                    self._children.append(GitBlob(ref, name, self))
-                elif type == "tree":
-                    self._children.append(GitTree(ref, name, self.git, self))
-                else:
-                    print "Invalid type in GitTree.children: %s for %s - %s" % (type, self.name, self.ref)
+            try:
+                raw = run('cd "%s" && git cat-file -p "%s^{tree}"' % (self.git.path, self.ref))
+                self._children = []
+                for line in raw.splitlines():
+                    print line
+                    mode, type, ref, name = line.split(None, 3)
+                    if type == "blob":
+                        self._children.append(GitBlob(ref, name, self))
+                    elif type == "tree":
+                        self._children.append(GitTree(ref, name, self.git, self))
+                    else:
+                        print "Invalid type in GitTree.children: %s for %s - %s" % (type, self.name, self.ref)
 
-            # sort the children by name, trees on top
-            def sorter(a, b):
-                if a.is_tree and not b.is_tree: return -1
-                if b.is_tree and not a.is_tree: return 1
-                return a.name < b.name
+                # sort the children by name, trees on top
+                def sorter(a, b):
+                    if a.is_tree and not b.is_tree: return -1
+                    if b.is_tree and not a.is_tree: return 1
+                    return a.name < b.name
 
-            self._children.sort(sorter)
+                self._children.sort(sorter)
+            except:
+                self._children = []
         return self._children
 
     @property
@@ -220,16 +223,22 @@ class Git(object):
         return GitTree(ref, "", self, None)
 
     def getCommit(self, ref):
-        if not ref in self._commit_cache.keys():
-            self._commit_cache[ref] = GitCommit(ref, self)
-        return self._commit_cache[ref]
+        try:
+            if not ref in self._commit_cache.keys():
+                self._commit_cache[ref] = GitCommit(ref, self)
+            return self._commit_cache[ref]
+        except:
+            return None
 
     def getCommits(self, ref = "HEAD"):
-        raw = run('cd "%s" && git log "%s" --oneline --no-abbrev-commit' % (self.path, ref))
-        commits = []
-        for line in raw.splitlines():
-            commits.append(self.getCommit(line[:40]))
-        return commits
+        try:
+            raw = run('cd "%s" && git log "%s" --oneline --no-abbrev-commit' % (self.path, ref))
+            commits = []
+            for line in raw.splitlines():
+                commits.append(self.getCommit(line[:40]))
+            return commits
+        except:
+            return []
 
     def isBranch(self, ref):
         ref = self.refHash(ref)
