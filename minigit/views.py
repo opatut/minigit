@@ -234,6 +234,7 @@ def profile(username = ""):
     else:
         user = User.query.filter_by(username = username).first_or_404()
 
+    pw_form = None
     if user == get_current_user():
         pw_form = ChangePasswordForm()
 
