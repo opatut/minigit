@@ -33,7 +33,7 @@ def run(p):
 
     res = ""
     while True:
-        out = child.stdout.read(1)
+        out = child.stdout.read(1024)
         if out == '' and child.poll() != None:
             break
         if out != '':

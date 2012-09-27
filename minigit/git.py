@@ -229,7 +229,7 @@ class Git(object):
 
     def getCommits(self, ref = "HEAD"):
         try:
-            raw = run('cd "%s" && git log "%s" --oneline --no-abbrev-commit --' % (self.path, ref))
+            raw = run('cd "%s" && git log "%s" --oneline --abbrev=40 --' % (self.path, ref))
             commits = []
             for line in raw.splitlines():
                 commits.append(self.getCommit(line[:40]))
