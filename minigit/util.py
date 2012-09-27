@@ -27,7 +27,7 @@ def keytype(key):
         return None
 
 def run(p):
-    print("$ " + p)
+    if app.debug: print("$ " + p)
     pr = subprocess.Popen(p, shell = True)
     pr.wait()
     out, err = pr.communicate()

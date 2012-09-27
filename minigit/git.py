@@ -84,14 +84,13 @@ class GitTree(object):
                 raw = run('cd "%s" && git cat-file -p "%s^{tree}"' % (self.git.path, self.ref))
                 self._children = []
                 for line in raw.splitlines():
-                    print line
                     mode, type, ref, name = line.split(None, 3)
                     if type == "blob":
                         self._children.append(GitBlob(ref, name, self))
                     elif type == "tree":
                         self._children.append(GitTree(ref, name, self.git, self))
                     else:
-                        print "Invalid type in GitTree.children: %s for %s - %s" % (type, self.name, self.ref)
+                        if app.debug: print "Invalid type in GitTree.children: %s for %s - %s" % (type, self.name, self.ref)
 
                 # sort the children by name, trees on top
                 def sorter(a, b):
@@ -122,14 +121,12 @@ class GitTree(object):
 
         for c in self.children:
             if fnmatch(c.name, path[0]):
-                print "FOUND", path[0]
                 if type(c) == GitBlob:
                     return c
                 m = c.find(path[1:])
                 if m:
                     return m
 
-        print "NOTFOUND", path[0]
         return None
 
 
