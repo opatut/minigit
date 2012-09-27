@@ -245,7 +245,7 @@ class Git(object):
         return False
 
     def getNodeHistory(self, path):
-        raw = run('cd "%s" && git log --oneline --no-abbrev-commit -- "%s"' % (self.path, path))
+        raw = run('cd "%s" && git log --oneline --abbrev=40 -- "%s"' % (self.path, path))
         commits = []
         for line in raw.splitlines():
             commits.append(self.getCommit(line[:40]))
