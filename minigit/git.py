@@ -50,11 +50,11 @@ class GitBlob(object):
             elif self.mimetype and self.mimetype.split("/")[0] == "text":
                 self._type = "text"
             else:
-                # try to convert it to string
                 try:
-                    self.content.decode("ascii")
+                    self._content = self.content.decode("utf-8", "replace")
                     self._type = "text"
-                except UnicodeDecodeError:
+                except UnicodeDecodeError as e:
+                    print e
                     self._type = "unknown"
         return self._type
 
