@@ -19,49 +19,12 @@
     <h3>{{ file.name }}</h3>
 </div>
 
-
 <p class="pull-right" style="margin-top: -5px;">
     <a href="{{ raw_url }}" class="btn"><i class="icon-hdd"></i> Download</a>
 </p>
 
-{#
-<p>
-    <a href="{{ url_for('browse', slug = repo.slug, ref = ref, path = file.tree.path) }}" class="btn btn-primary">&laquo; Back to file tree</a>
-</p>
-#}
-
 {% set path = file.path %}
 {% include "repo/path.html" %}
-
-{% if file.type == "text" %}
-    {% include "render_file.html" %}
-{% elif file.type == "image" %}
-    <div class="well image-preview white">
-        <p>
-            <button class="btn btn-mini active">
-                <span class="mode white" data-mode="white"></span>
-            </button>
-            <button class="btn btn-mini">
-                <span class="mode black" data-mode="black"></span>
-            </button>
-            <button class="btn btn-mini">
-                <span class="mode transparent" data-mode="transparent"></span>
-            </button>
-        </p>
-
-        <a href="{{ raw_url }}">
-            <img src="{{ raw_url }}">
-        </a>
-    </div>
-{% elif file.type == "empty" %}
-    <div class="alert alert-info">
-        This file is empty.
-    </div>
-{% else %}
-    <div class="alert">
-        This file cannot be displayed.
-    </div>
-{% endif %}
-
+{% include "render_file.html" %}
 {% endblock %}
 
