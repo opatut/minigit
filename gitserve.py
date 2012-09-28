@@ -35,29 +35,26 @@ if len(split) >= 2:
     if repo[-4:] == ".git":
         repo = repo[:-4]
 
-if not action or action not in ("git-receive-pack", "git-upload-pack"):
-    die("Invalid SSH command. Only use this user with git.")
-
-writeMode = (action == "git-receive-pack")
-
 # Find the key in the database.
 key = PublicKey.query.filter_by(id = key_id).first()
 if not key:
     die("Unable to associate SSH Key. Please add it to your profile.")
 user = key.user
 
+if not action or action not in ("git-receive-pack", "git-upload-pack"):
+    die("Authenticated as %s. This remote user is only for use with git." % user.username)
+
+writeMode = (action == "git-receive-pack")
+
 repository = Repository.query.filter_by(slug = repo).first()
 if not repository:
     die("Unable to find repository '" + repo + "'. Create or import it first.")
-
-# TODO: Check the permissions for this user.
 
 if writeMode and not repository.userHasPermission(user, "write"):
     die("Permission denied - no write access.")
 
 if not writeMode and not repository.userHasPermission(user, "read"):
     die("Permission denied - no read access.")
-
 
 log_access(("WRITE" if writeMode else "READ") + " - <" + user.username + "> in <" + repo + ">")
 

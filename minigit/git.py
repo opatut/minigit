@@ -263,7 +263,7 @@ class Git(object):
     def branches(self):
         if not self._branches:
             self._branches = []
-            b = run('cd "%s" && git branch --no-color --no-column --list' % self.path)
+            b = run('cd "%s" && git branch' % self.path)
             for line in b.splitlines():
                 if line[0] == "*": line = line[1:]
                 line = line.strip()
