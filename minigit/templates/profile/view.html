@@ -13,41 +13,70 @@
 </p>
 
 {% if current_user == user %}
-<h4>Change Password</h4>
-<div class="well">
-    <form class="form-horizontal" style="margin: 0;" method="post" action="{{ url_for('profile') }}">
-        {{ pw_form.hidden_tag() }}
-        {{ form_errors(pw_form) }}
+<div class="row-fluid">
+    <div class="span6">
+        <h4>Change Password</h4>
+        <div class="well">
+            <form class="form-horizontal" style="margin: 0;" method="post" action="{{ url_for('profile') }}">
+                {{ pw_form.hidden_tag() }}
+                {{ form_errors(pw_form) }}
 
+                <div class="control-group">
+                    {{ pw_form.old.label(class = "control-label") }}
+                    <div class="controls">
+                        {{ pw_form.old(placeholder="Enter your old password", class="span12") }}
+                    </div>
+                </div>
 
-        <div class="control-group">
-            {{ pw_form.old.label(class = "control-label") }}
-            <div class="controls">
-                {{ pw_form.old(placeholder="Enter your old password") }}
-            </div>
+                <div class="control-group">
+                    {{ pw_form.new.label(class = "control-label") }}
+                    <div class="controls">
+                        {{ pw_form.new(placeholder="Choose a new password", class="span12") }}
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    {{ pw_form.new2.label(class = "control-label") }}
+                    <div class="controls">
+                        {{ pw_form.new2(placeholder="Type your new password again", class="span12") }}
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <button type="submit" class="btn btn-primary pull-right">Save Password</button>
+                </div>
+            </form>
         </div>
+    </div>
+    <div class="span6">
+        <h4>Change Username</h4>
+        <div class="well">
+            <form class="form-horizontal" style="margin: 0;" method="post" action="{{ url_for('profile') }}">
+                {{ user_form.hidden_tag() }}
+                {{ form_errors(user_form) }}
 
-        <div class="control-group">
-            {{ pw_form.new.label(class = "control-label") }}
-            <div class="controls">
-                {{ pw_form.new(placeholder="Choose a new password") }}
-            </div>
-        </div>
+                <div class="control-group">
+                    {{ user_form.username.label(class = "control-label") }}
+                    <div class="controls">
+                        {{ user_form.username(placeholder="Your new login name", class="span12") }}
+                    </div>
+                </div>
 
-        <div class="control-group">
-            {{ pw_form.new2.label(class = "control-label") }}
-            <div class="controls">
-                {{ pw_form.new2(placeholder="Type your new password again") }}
-            </div>
-        </div>
+                <div class="control-group">
+                    {{ user_form.password.label(class = "control-label") }}
+                    <div class="controls">
+                        {{ user_form.password(placeholder="Please confirm with your password", class="span12") }}
+                    </div>
+                </div>
 
-        <div class="control-group">
-            <label class="control-label"></label>
-            <div class="controls">
-                <button type="submit" class="btn btn-primary">Create</button>
-            </div>
+                <p>If you change your username, you will need it to log in again. Please do not forget what you changed your username to.</p>
+
+                <div class="control-group">
+                    <button type="submit" class="btn btn-primary pull-right">Change username</button>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 
 {% endif %}

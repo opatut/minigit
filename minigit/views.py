@@ -238,6 +238,7 @@ def profile(username = ""):
         user = User.query.filter_by(username = username).first_or_404()
 
     pw_form = None
+    user_form = None
     if user == get_current_user():
         pw_form = ChangePasswordForm()
 
@@ -247,8 +248,15 @@ def profile(username = ""):
             flash("Your password has been saved.", category = "success")
             return redirect(user.url)
 
-    return render_template("profile/view.html", user = user, pw_form = pw_form)
+        user_form = ChangeUsernameForm()
 
+        if user_form.validate_on_submit():
+            user.username = user_form.username.data
+            db.session.commit()
+            flash("Your username has been changed.", category = "success")
+            return redirect(user.url)
+
+    return render_template("profile/view.html", user = user, pw_form = pw_form, user_form = user_form)
 
 
 @app.route("/profile/keys", methods = ["POST", "GET"])

@@ -137,3 +137,12 @@ class ChangePasswordForm(Form):
     old = PasswordField("Current Password", validators = [PasswordValidator()])
     new = PasswordField("New Password", validators=[Length(min = 6, message = "Please enter a password of at least 6 characters.")])
     new2 = PasswordField("New Password, again", validators=[EqualTo("new", "Passwords do not match.")])
+
+
+class ChangeUsernameForm(Form):
+    username = TextField("New Username", validators=[
+        Required(),
+        Regexp("[0-9a-zA-Z\-_]", message = "The username contains invalid characters. Only use alphanumeric characters, dashes and underscores."),
+        Not(UsernameExists(), message = "That username already exists."),
+        Length(min = 3, max = 32, message="You have to enter a username of 3 to 32 characters length.")])
+    password = PasswordField("Current Password", validators=[PasswordValidator()])
