@@ -227,7 +227,7 @@ class Git(object):
         except:
             return None
 
-    def getCommits(self, ref = "HEAD"):
+    def getCommits(self, ref = "master"):
         try:
             raw = run('cd "%s" && git log "%s" --oneline --abbrev=40 --' % (self.path, ref))
             commits = []

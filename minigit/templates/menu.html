@@ -15,7 +15,7 @@
 
 {% if repo and repo.userHasPermission(current_user, "read") %}
     {{ menuCategory("Repository &middot; " | safe + repo.title) }}
-    {{ menuEntry("Source Browser", "file", "browse", {"slug" : repo.slug, "ref" : "HEAD", "path" : ""}) }}
+    {{ menuEntry("Source Browser", "file", "browse", {"slug" : repo.slug, "ref" : "master", "path" : ""}) }}
     {{ menuEntry("Commit history", "time", "commits", {"slug" : repo.slug} ) }}
 
     {% if repo.userHasPermission(current_user, "admin") %}

@@ -122,7 +122,7 @@ def not_implemented():
 
 @app.route("/repo/<slug>/")
 def repository(slug):
-    return redirect(url_for("browse", slug = slug, ref = "HEAD", path = ""))
+    return redirect(url_for("browse", slug = slug, ref = "master", path = ""))
 
 @app.route("/repo/<slug>/admin/permissions/", methods = ["GET", "POST"])
 def permissions(slug):
@@ -180,7 +180,7 @@ def permissions_action(slug, username, action):
 
 @app.route("/repo/<slug>/commits/")
 @app.route("/repo/<slug>/commits/<ref>/")
-def commits(slug, ref = "HEAD"):
+def commits(slug, ref = "master"):
     repo = get_repo(slug)
     repo.requirePermission("read")
 
@@ -195,7 +195,7 @@ def commits_details(slug, ref):
 
 @app.route("/repo/<slug>/browse/<ref>/")
 @app.route("/repo/<slug>/browse/<ref>/<path:path>")
-def browse(slug, ref = "HEAD", path = ""):
+def browse(slug, ref = "master", path = ""):
     repo = get_repo(slug)
     repo.requirePermission("read")
 

@@ -154,7 +154,7 @@ class Repository(db.Model):
         if self.exists: return
         run("mkdir -p {0} && cd {0} &&  mkdir {1}.git && cd {1}.git && git init --bare".format(app.config["REPOHOME"], self.slug))
 
-    def cloneFrom(self, url, branch = "HEAD"):
+    def cloneFrom(self, url, branch = ""):
         if self.exists: return
         self.upstream = url + " " + branch
         run("mkdir -p {0} && cd {0} && git clone {2} {1}.git b {3} --bare".format(app.config["REPOHOME"], self.slug. url, branch))
