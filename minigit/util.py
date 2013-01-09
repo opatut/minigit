@@ -39,7 +39,7 @@ def run(p):
         if out != '':
             res += out
 
-    return res
+    return res.decode("utf-8")
 
 def get_slug(s):
     s = s.lower()
