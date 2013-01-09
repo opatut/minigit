@@ -51,7 +51,8 @@ class GitBlob(object):
                 self._type = "text"
             else:
                 try:
-                    self._content = self.content.decode("utf-8", "replace")
+                    #self._content = self.content.decode("utf-8", "replace")
+                    self._content = self.content
                     self._type = "text"
                 except UnicodeDecodeError as e:
                     print e
