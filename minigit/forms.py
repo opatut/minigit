@@ -108,6 +108,7 @@ class ImplicitAccessForm(Form):
         ("read", "Read"),
         ("write", "Write"),
         ("admin", "Admin")])
+    guest = BooleanField("Apply to unauthenticated users (guests) as well", default = False)
     submit = SubmitField("Save")
 
 class AddPublicKeyForm(Form):

@@ -35,10 +35,22 @@
                 {{ implicit_access.submit(class="btn btn-primary") }}
             </div>
 
+            <div>
+                <label class="checkbox">
+                    {{ implicit_access.guest(class = "") }}
+                    {{ implicit_access.guest.label.text }}
+                </label>
+            </div>
+
             <span class="help-block">
                 Please select the level of access for users without an explicit
                 permission level. All users not explicitly assigned
                 on the right will have this level of access.
+            </span>
+
+            <span class="help-block">
+                By ticking the checkbox you allow guest users that have not been
+                authenticated the same access to the repository.
             </span>
         </form>
 

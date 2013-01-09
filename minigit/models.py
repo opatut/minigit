@@ -129,6 +129,7 @@ class Repository(db.Model):
     upstream = db.Column(db.String(256)) # URL BRANCH
     is_public = db.Column(db.Boolean, default = True)
     implicit_access = db.Column(db.Enum("none", "find", "read", "write", "admin"), default = "none")
+    implicit_guest_access = db.Column(db.Boolean, default = False)
 
     permissions = db.relationship("Permission", backref = "repository", lazy = "dynamic")
 

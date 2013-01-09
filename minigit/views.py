@@ -134,10 +134,12 @@ def permissions(slug):
 
     if "implicit" in request.args and implicit_access.validate_on_submit():
         repo.implicit_access = implicit_access.level.data
+        repo.implicit_guest_access = implicit_access.guest.data
         db.session.commit()
         flash("The implicit access setting has been saved.", category = "success")
     elif request.method == "GET":
         implicit_access.level.data = repo.implicit_access
+        implicit_access.guest.data = repo.implicit_guest_access
 
     if "add" in request.args and add_user_permission.validate_on_submit():
         username = add_user_permission.username.data.strip()
