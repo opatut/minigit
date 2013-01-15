@@ -188,6 +188,9 @@ class GitCommit(object):
         """
         raw = run('cd "%s" && git cat-file -p "%s"' % (self.tree.git.path, self.ref))
 
+        if not raw or "fatal" in raw:
+            raise Exception("Commit not found: '%s' (in %s)" % (self.ref, self.tree.git.path))
+
         is_message = False
         for line in raw.splitlines():
             line = line.strip()
@@ -210,6 +213,9 @@ class GitCommit(object):
             else:
                 self.message += line.strip() + "\n"
 
+        if not self.author_raw: self.author_raw = self.committer_raw
+        if not self.author_time: self.author_time = self.commit_time
+
 class Git(object):
     _branches = None
     _commit_cache = {}
@@ -221,12 +227,9 @@ class Git(object):
         return GitTree(ref, "", self, None)
 
     def getCommit(self, ref):
-        try:
-            if not ref in self._commit_cache.keys():
-                self._commit_cache[ref] = GitCommit(ref, self)
-            return self._commit_cache[ref]
-        except:
-            return None
+        if not ref in self._commit_cache.keys():
+            self._commit_cache[ref] = GitCommit(ref, self)
+        return self._commit_cache[ref]
 
     def getCommits(self, ref = "master"):
         try:
@@ -255,6 +258,8 @@ class Git(object):
     def lastChangedCommit(self, ref, path):
         h = self.getNodeHistory(path)
         c = self.getCommit(ref)
+        if not c:
+            raise Exception("Could not find commit '%s'" % ref)
         while len(h) > 1 and h[0].author_time > c.author_time:
             h = h[1:]
 

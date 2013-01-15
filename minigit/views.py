@@ -332,3 +332,10 @@ def login_required(exception):
     flash(exception.message, "error")
     return redirect(url_for('login', next = exception.next))
 
+@app.errorhandler(403)
+@app.errorhandler(404)
+@app.errorhandler(500)
+def error_page(error):
+    return render_template("error.html", error = error)
+
+
