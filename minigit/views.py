@@ -210,7 +210,11 @@ def browse(slug, ref = "master", path = ""):
     if node.is_blob:
         return render_template("repo/file.html", repo = repo, ref = ref, path = path, file = node)
     elif node.is_tree:
-        return render_template("repo/browse.html", repo = repo, ref = ref, path = path, tree = node)
+        try:
+            commit = repo.git.getCommit(ref)
+        except:
+            return render_template("repo/error.html", error = "empty", repo = repo)
+        return render_template("repo/browse.html", repo = repo, ref = ref, path = path, tree = node, commit = commit)
     else:
         abort(404)
 
@@ -331,4 +335,11 @@ def emails_action(action, id):
 def login_required(exception):
     flash(exception.message, "error")
     return redirect(url_for('login', next = exception.next))
+
+@app.errorhandler(403)
+@app.errorhandler(404)
+@app.errorhandler(500)
+def error_page(error):
+    return render_template("error.html", error = error)
+
 

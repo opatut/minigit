@@ -21,6 +21,7 @@ class GitBlob(object):
     def content(self):
         if not self._content:
             self._content = run('cd "%s" && git cat-file -p "%s"' % (self.tree.git.path, self.ref))
+
         return self._content
 
     @property
@@ -63,6 +64,8 @@ class GitBlob(object):
     def size(self):
         if not self._size:
             self._size = run('cd "%s" && git cat-file -s "%s"' % (self.tree.git.path, self.ref))
+            if not self._size or "fatal" in self._size:
+                raise Exception("Could not read file size of '%s' (in %s)" % (self.ref, self.tree.git.path))
         return self._size
 
 class GitTree(object):
@@ -81,27 +84,28 @@ class GitTree(object):
     @property
     def children(self):
         if not self._children:
-            try:
-                raw = run('cd "%s" && git cat-file -p "%s^{tree}"' % (self.git.path, self.ref))
-                self._children = []
-                for line in raw.splitlines():
-                    mode, type, ref, name = line.split(None, 3)
-                    if type == "blob":
-                        self._children.append(GitBlob(ref, name, self))
-                    elif type == "tree":
-                        self._children.append(GitTree(ref, name, self.git, self))
-                    else:
-                        if app.debug: print "Invalid type in GitTree.children: %s for %s - %s" % (type, self.name, self.ref)
+            raw = run('cd "%s" && git cat-file -p "%s^{tree}"' % (self.git.path, self.ref))
 
-                # sort the children by name, trees on top
-                def sorter(a, b):
-                    if a.is_tree and not b.is_tree: return -1
-                    if b.is_tree and not a.is_tree: return 1
-                    return a.name < b.name
+            if not raw or "fatal" in raw:
+                raise Exception("Could not read children of '%s' (in %s)" % (self.ref, self.git.path))
 
-                self._children.sort(sorter)
-            except:
-                self._children = []
+            self._children = []
+            for line in raw.splitlines():
+                mode, type, ref, name = line.split(None, 3)
+                if type == "blob":
+                    self._children.append(GitBlob(ref, name, self))
+                elif type == "tree":
+                    self._children.append(GitTree(ref, name, self.git, self))
+                else:
+                    if app.debug: print "Invalid type in GitTree.children: %s for %s - %s" % (type, self.name, self.ref)
+
+            # sort the children by name, trees on top
+            def sorter(a, b):
+                if a.is_tree and not b.is_tree: return -1
+                if b.is_tree and not a.is_tree: return 1
+                return a.name < b.name
+
+            self._children.sort(sorter)
         return self._children
 
     @property
@@ -186,7 +190,10 @@ class GitCommit(object):
         This is the commit message. It will go down to the last
         lines of the output. There is a newline at the end. Strip it.
         """
-        raw = run('cd "%s" && git cat-file -p "%s"' % (self.tree.git.path, self.ref))
+        raw = run('cd "%s" && git cat-file -p "%s"' % (self.git.path, self.ref))
+
+        if not raw or "fatal" in raw:
+            raise Exception("Commit not found: '%s' (in %s)" % (self.ref, self.git.path))
 
         is_message = False
         for line in raw.splitlines():
@@ -210,6 +217,9 @@ class GitCommit(object):
             else:
                 self.message += line.strip() + "\n"
 
+        if not self.author_raw: self.author_raw = self.committer_raw
+        if not self.author_time: self.author_time = self.commit_time
+
 class Git(object):
     _branches = None
     _commit_cache = {}
@@ -221,16 +231,17 @@ class Git(object):
         return GitTree(ref, "", self, None)
 
     def getCommit(self, ref):
-        try:
-            if not ref in self._commit_cache.keys():
-                self._commit_cache[ref] = GitCommit(ref, self)
-            return self._commit_cache[ref]
-        except:
-            return None
+        if not ref in self._commit_cache.keys():
+            self._commit_cache[ref] = GitCommit(ref, self)
+        return self._commit_cache[ref]
 
     def getCommits(self, ref = "master"):
         try:
             raw = run('cd "%s" && git log "%s" --oneline --abbrev=40 --' % (self.path, ref))
+
+            if not raw or "fatal" in raw:
+                raise Exception("Could not read commit log from ref '%s' (in %s)" % (ref, self.path))
+
             commits = []
             for line in raw.splitlines():
                 commits.append(self.getCommit(line[:40]))
@@ -247,6 +258,10 @@ class Git(object):
 
     def getNodeHistory(self, path):
         raw = run('cd "%s" && git log --oneline --abbrev=40 -- "%s"' % (self.path, path))
+
+        if not raw or "fatal" in raw:
+            raise Exception("Could not get node history of %s (in %s)" % (path, self.path))
+
         commits = []
         for line in raw.splitlines():
             commits.append(self.getCommit(line[:40]))
@@ -255,6 +270,8 @@ class Git(object):
     def lastChangedCommit(self, ref, path):
         h = self.getNodeHistory(path)
         c = self.getCommit(ref)
+        if not c:
+            raise Exception("Could not find commit '%s'" % ref)
         while len(h) > 1 and h[0].author_time > c.author_time:
             h = h[1:]
 
@@ -264,13 +281,23 @@ class Git(object):
     def branches(self):
         if not self._branches:
             self._branches = []
-            b = run('cd "%s" && git branch' % self.path)
-            for line in b.splitlines():
+            raw = run('cd "%s" && git branch' % self.path)
+
+            if "fatal" in raw:
+                raise Exception("Could not fetch branch list (in %s)" % self.path)
+
+            for line in raw.splitlines():
                 if line[0] == "*": line = line[1:]
                 line = line.strip()
                 self._branches.append(line)
         return self._branches
 
     def refHash(self, ref):
-        return run('cd "%s" && git rev-parse "%s"' % (self.path, ref))
+        raw = run('cd "%s" && git rev-parse "%s"' % (self.path, ref))
+
+        if not raw or "fatal" in raw:
+            raise Exception("Could not parse hash of ref '%s' (in %s)" % (ref, self.path))
+
+        return raw.strip()
+
 

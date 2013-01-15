@@ -37,7 +37,7 @@
 {% set path = tree.path %}
 {% include "repo/path.html" %}
 
-{% set commit = repo.git.getCommit(ref) %}
+{{ repo.git.path }}
 {% if commit %}
 <div class="commit-info well">
     <div class="author">

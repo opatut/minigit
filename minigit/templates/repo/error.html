@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ repo.title }}{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+
+{% if error == "empty" %}
+    <div class="page-header">
+        <h3>Empty Repository <small>{{ repo.title }}</small></h3>
+    </div>
+
+    <p>Your repository is empty. Here is what you can do:</p>
+
+    <h2>Exisiting repository</h2>
+{% elif error == "no-commit" %}
+
+{% endif %}
+
+{% endblock %}

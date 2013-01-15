@@ -3,7 +3,7 @@
 {% endmacro %}
 
 {% macro menuEntry(label, icon, endpoint, kwargs = {}) %}
-    <li{% if request.endpoint.startswith(endpoint) %} class="active"{% endif %}>
+    <li{% if request.endpoint and request.endpoint.startswith(endpoint) %} class="active"{% endif %}>
         <a href="{{ url_for(endpoint, **kwargs) }}">
             <i class="icon-{{ icon }}"></i>
             {{ label }}
