@@ -195,6 +195,9 @@ class GitCommit(object):
         if not raw or "fatal" in raw:
             raise Exception("Commit not found: '%s' (in %s)" % (self.ref, self.git.path))
 
+        if not raw or "fatal" in raw:
+            raise Exception("Commit not found: '%s' (in %s)" % (self.ref, self.tree.git.path))
+
         is_message = False
         for line in raw.splitlines():
             line = line.strip()
