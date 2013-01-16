@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
+import git # GitPython
 from os.path import *
 from datetime import datetime, timedelta
 from hashlib import sha512, md5
 from minigit import app, db
 from minigit.util import *
 from flask import url_for, Markup
-from minigit.git import *
 from minigit.login import *
 
 class Email(db.Model):
@@ -212,5 +212,27 @@ class Repository(db.Model):
     @property
     def git(self):
         if not self._git:
-            self._git = Git(self.path)
+            self._git = git.Repo(self.path)
         return self._git
+
+    def findCommitContaining(self, rev, obj):
+        commits = []
+        for commit in git.Commit.iter_items(self.git, rev, obj.path):
+            commits.append(commit)
+        commits.sort(key = lambda o: o.committed_date, reverse = True)
+        return commits[0]
+
+    def getCommit(self, rev):
+        node = self.git.rev_parse(rev)
+
+        if not node:
+            return None
+
+        if type(node) == git.Blob or type(node) == git.Tree:
+            return node.commit
+        if type(node) == git.Tag:
+            return node.object
+        if type(node) == git.Commit:
+            return node
+
+        return None

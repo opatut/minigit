@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% set raw_url = url_for('file_content', slug = repo.slug, ref = ref, path = file.path) %}
+{% set raw_url = url_for('file_content', slug = repo.slug, rev = rev, path = file.path) %}
 
 {% block title %}{% if path %}{{ path }} &middot; {% endif %}/{{ repo.slug }} &middot; {{ repo.title }}{% endblock %}
 

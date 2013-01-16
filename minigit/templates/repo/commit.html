@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{% if path %}{{ path }} &middot; {% endif %}/{{ repo.slug }} &middot; {{ repo.title }}{% endblock %}
+
+{% block head %}
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/commit.css') }}" />
+    <script src="{{ url_for('static', filename='js/commit.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3>{{ commit.summary }}{% if commit.summary != commit.message %}...{% endif %}</h3>
+</div>
+
+{% set author = commit.author | gitToUser %}
+{% set date = commit.authored_date | gittime %}
+
+<div class="" style="margin-bottom: 10px;">
+    <pre>{{ commit.message }}</pre>
+
+    <div class="pull-right">
+        <a href="{{ url_for('browse', slug = repo.slug, rev = commit.hexsha, path = '') }}" class="btn btn-mini">Browse Files</a>
+    </div>
+    <a class="avatar" href="{{ author.url }}"><img src="{{ author.getAvatar(20) }}" /></a>
+    <a href="{{ author.url }}">{{ author.username }}</a> authored {{ date | humantime }}
+    -
+    <span class="stats">
+        {% set s = commit.stats.total %}
+        <span class="insertions">{{ s["insertions"] }} insertions</span>
+        -
+        <span class="deletions">{{ s["deletions"] }} deletions</span>
+        -
+        <span class="lines">{{ s["lines"] }} total</span>
+    </span>
+    - <code>{{ commit.hexsha }}</code>
+</div>
+
+
+{% if not commit.parents[0] %}
+    <p class="alert alert-info">
+        This commit does not have any parents, just <a href="{{ url_for('browse', slug = repo.slug, rev = commit.hexsha) }}">browse its code</a> if you want to see the file contents.
+    </p>
+{% elif commit.parents[1] %}
+    <p class="alert alert-info">
+        This commit is a merge commit. See the parent's diffs for details.
+    </p>
+{% else %}
+    {% for diff in commit.parents[0].diff(commit, create_patch = True) %}
+        <div class="commit-file">
+            {% set from = diff.rename_from if diff.renamed else diff.a_blob.path %}
+            {% set to = diff.rename_to if diff.renamed else diff.b_blob.path %}
+
+            {% set lines = diff.diff.splitlines() %}
+
+            <div class="files">
+                <span class="from">{{ from }}</span>
+                {% if to != from %}
+                    <span class="rename">&raquo;</span>
+                    <span class="to">{{ to }}</span>
+                {% endif %}
+            </div>
+
+
+            <div class="diff">
+                <table class="patch">
+                {% set lineA, lineB = 0, 0 %}
+
+                {% for line in lines[2:] %}
+                    {% set t = line | diffLineType %}
+
+                    {% if t == "section" %}
+                        {% set lineA, lineB = line | diffParseSection %}
+                    {% endif %}
+
+                    {% if t != "insertion" %}{% set lineA = lineA + 1 %}{% endif %}
+                    {% if t != "deletion" %}{% set lineB = lineB + 1 %}{% endif %}
+
+                    <tr class="line {{ t }}">
+                        {% if t == "section" %}
+                            <td colspan="nonumber"></td>
+                            <td colspan="nonumber"></td>
+                        {% else %}
+                            <td class="number a">{% if t != "insertion" %}{{ lineA }}{% endif %}</td>
+                            <td class="number b">{% if t != "deletion" %}{{ lineB }}{% endif %}</td>
+                        {% endif %}
+                        <td> {{ line }}</td>
+                    </tr>
+                {% endfor %}
+
+                {% if lines | length <= 2 %}
+                    <tr class="line context"><td colspan="3">[no changes]</td></div>
+                {% endif %}
+                </table>
+            </div>
+
+            <div class="stats">
+                {% set s = commit.stats.files[to] %}
+                <span class="insertions">{{ s["insertions"] }} insertions</span>
+                -
+                <span class="deletions">{{ s["deletions"] }} deletions</span>
+                -
+                <span class="lines">{{ s["lines"] }} total</span>
+
+                <div class="pull-right">
+                    <a href="{{ url_for('browse', slug = repo.slug, rev = commit.hexsha, path = diff.a_blob.path) }}">Show file @ {{ commit.hexsha[:8] }}</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}
+

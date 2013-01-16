@@ -1,0 +1,100 @@
+.commit-file {
+    margin-bottom: 10px;
+    padding: 0;
+}
+
+.commit-file .files,
+.commit-file .stats {
+    background: -webkit-gradient(linear, left top, left bottom, from(#EEE), to(#CCC));
+    border: 1px solid #CCC;
+    padding: 5px 10px;
+}
+
+.commit-file .files .from,
+.commit-file .files .to {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #555;
+}
+
+.commit-file .files .rename {
+    display: inline-block;
+    color: #888;
+    font-size: 1.5em;
+    margin: 0 5px;
+}
+
+.commit-file .diff {
+    font-family: "Droid Sans Mono", "Courier New", monospace;
+    line-height: 1.4em;
+    font-size: 0.9em;
+    overflow: auto;
+    padding-right: 3px;
+}
+
+.commit-file .diff .patch {
+    margin: 0 1px;
+    width: 100%;
+}
+
+.commit-file .diff .patch td {
+    vertical-align: top;
+}
+.commit-file .diff .patch td.number {
+    background: #EEE;
+    text-align: right;
+    padding: 0 5px;
+    border-right: 1px solid #CCC;
+    color: #AAA;
+}
+
+.commit-file .diff .line {
+    white-space: pre-wrap;
+    padding: 0 5px;
+}
+
+.commit-file .diff .line.section {
+    color: #888;
+    background: #DDD;
+}
+
+.commit-file .diff .line.insertion {
+    background: #DFC;
+}
+
+.commit-file .diff .line.deletion {
+    background: #FDC;
+}
+
+.commit-file .diff .line.context {
+    color: #AAA;
+}
+
+.stats {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.stats .deletions:before,
+.stats .insertions:before {
+    display: inline-block;
+    content: " ";
+    width: 10px;
+    height: 10px;
+    margin-right: 3px;
+    vertical-align: -1px;
+}
+
+.stats .insertions {
+    color: #080;
+}
+.stats .insertions:before {
+    background: #0A0;
+}
+
+.stats .deletions {
+    color: #800;
+}
+.stats .deletions:before {
+    background: #A00;
+}

@@ -17,7 +17,7 @@
             <span class="label label-important" style="vertical-align: 3px;">Restricted</span>
             {{ repo.title }}
         {% else %}
-            <a href="{{ url_for('browse', slug = repo.slug, ref = 'master', path = '') }}">{{ repo.title }}</a>
+            <a href="{{ url_for('browse', slug = repo.slug, rev = 'master', path = '') }}">{{ repo.title }}</a>
         {% endif %}
 
         <small>/{{ repo.slug }}</small>

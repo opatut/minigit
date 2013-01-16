@@ -1,14 +1,17 @@
-{% if file.type == "text" %}
-    {% if file.extension in ("md", "markdown") %}
+{% set type = file|filetype %}
+{% set extension = file|extension %}
+
+{% if type == "text" %}
+    {% if extension in ("md", "markdown") %}
         <div class="markdown markdown-file">
-            {{ file.content | markdown }}
+            {{ file.data_stream.read() | markdown }}
         </div>
     {% else %}
         <div class="codefile">
-            {{ file.content | highlight(file.name) }}
+            {{ file.data_stream.read() | highlight(file.name) }}
         </div>
     {% endif %}
-{% elif file.type == "image" %}
+{% elif type == "image" %}
     <div class="well image-preview white">
         <p>
             <button class="btn btn-mini active">
@@ -26,7 +29,7 @@
             <img src="{{ raw_url }}">
         </a>
     </div>
-{% elif file.type == "empty" %}
+{% elif type == "empty" %}
     <div class="alert alert-info">
         This file is empty.
     </div>

@@ -122,7 +122,7 @@ def not_implemented():
 
 @app.route("/repo/<slug>/")
 def repository(slug):
-    return redirect(url_for("browse", slug = slug, ref = "master", path = ""))
+    return redirect(url_for("browse", slug = slug, rev = "master", path = ""))
 
 @app.route("/repo/<slug>/admin/permissions/", methods = ["GET", "POST"])
 def permissions(slug):
@@ -181,56 +181,62 @@ def permissions_action(slug, username, action):
 
 
 @app.route("/repo/<slug>/commits/")
-@app.route("/repo/<slug>/commits/<ref>/")
-def commits(slug, ref = "master"):
+@app.route("/repo/<slug>/commits/<rev>/")
+def commits(slug, rev = "master"):
+    repo = get_repo(slug)
+    repo.requirePermission("read")
+    commits = []
+    for commit in repo.git.iter_commits(rev):
+        commits.append(commit)
+
+    return render_template("repo/commits.html", repo = repo, commits = commits)
+
+@app.route("/repo/<slug>/commit/<rev>/")
+def commits_details(slug, rev):
     repo = get_repo(slug)
     repo.requirePermission("read")
 
-    return render_template("repo/commits.html", repo = repo, commits = repo.git.getCommits(ref))
+    commit = repo.getCommit(rev)
+    if not commit: abort(404)
 
-@app.route("/repo/<slug>/commit/<ref>/")
-def commits_details(slug, ref):
+    return render_template("repo/commit.html", repo = repo, commit = commit)
+
+@app.route("/repo/<slug>/browse/<rev>/")
+@app.route("/repo/<slug>/browse/<rev>/<path:path>")
+def browse(slug, rev = "master", path = ""):
     repo = get_repo(slug)
     repo.requirePermission("read")
 
-    return render_template("repo/commit.html", repo = repo, commit = repo.git.getCommit(ref))
+    commit = repo.getCommit(rev)
+    if not commit: abort(404)
 
-@app.route("/repo/<slug>/browse/<ref>/")
-@app.route("/repo/<slug>/browse/<ref>/<path:path>")
-def browse(slug, ref = "master", path = ""):
-    repo = get_repo(slug)
-    repo.requirePermission("read")
+    tree = commit.tree
 
-    tree = repo.git.getTree(ref)
-    node = tree.find(path)
+    # TODO: parse path and apply to filter down to a tree
+    target = tree
+    if path:
+        target = target / path.strip("/")
 
-    if not node:
-        abort(404)
-
-    if node.is_blob:
-        return render_template("repo/file.html", repo = repo, ref = ref, path = path, file = node)
-    elif node.is_tree:
-        try:
-            commit = repo.git.getCommit(ref)
-        except:
-            return render_template("repo/error.html", error = "empty", repo = repo)
-        return render_template("repo/browse.html", repo = repo, ref = ref, path = path, tree = node, commit = commit)
+    if type(target) == git.Blob:
+        return render_template("repo/file.html", repo = repo, rev = rev, path = path, file = target, commit = commit)
+    elif type(target) == git.Tree:
+        return render_template("repo/browse.html", repo = repo, rev = rev, path = path, tree = target, commit = commit)
     else:
-        abort(404)
+        raise Exception("Why could we find something other than blob/tree by path filtering a commit object??? Weird!")
 
-@app.route("/repo/<slug>/raw/<ref>/<path:path>")
-def file_content(slug, ref, path):
+    #return render_template("repo/error.html", error = "empty", repo = repo)
+
+@app.route("/repo/<slug>/raw/<rev>/<path:path>")
+def file_content(slug, rev, path):
     repo = get_repo(slug)
     repo.requirePermission("read")
 
-    tree = repo.git.getTree(ref)
-    node = tree.find(path)
+    commit = repo.getCommit(rev)
+    if not commit: abort(404)
 
-    if not node.is_blob:
-        abort(404)
-
-    response = app.make_response(node.content)
-    response.mimetype = node.mimetype
+    blob = commit.tree / path
+    response = app.make_response(blob.data_stream.read())
+    response.mimetype = blob.mime_type
     return response
 
 @app.route("/profile", methods = ["POST", "GET"])

@@ -1,9 +1,15 @@
 from minigit import app
+from minigit.models import Email
 from datetime import *
 from dateutil import relativedelta
 from flask import Markup
-import time, os, pygments, pygments.lexers, pygments.formatters
+import time, os, pygments, pygments.lexers, pygments.formatters, git, re
 from os.path import *
+
+# convert unix timestamp to datetime
+@app.template_filter()
+def gittime(unix):
+    return datetime.fromtimestamp(unix)
 
 # format a timestamp in default format (0000-00-00 00:00:00)
 @app.template_filter()
@@ -111,4 +117,57 @@ def pathsplit(o):
     while len(p) > 0 and p[0] == "": p = p[1:]
     while len(p) > 0 and p[-1] == "": p = p[:-1]
     return p
+
+
+@app.template_filter()
+def gitToUser(gitUser):
+    mail = Email.query.filter_by(address = gitUser.email).first()
+    if mail:
+        return mail.user
+    return None
+
+@app.template_filter()
+def filetype(blob):
+    if type(blob) == git.Tree:
+        return "folder"
+
+    if blob.size == 0:
+        self._type = "empty"
+
+    ext = extension(blob)
+    mimetype = blob.mime_type
+
+    IMAGE_TYPES = ("png", "jpg", "jpeg", "tga", "gif", "bmp")
+
+    if ext in IMAGE_TYPES:
+        return "image"
+
+    if mimetype.split("/")[0] == "text":
+        return "text"
+
+    return "unknown"
+
+@app.template_filter()
+def extension(file):
+    return splitext(file.name)[1][1:].lower()
+
+
+@app.template_filter()
+def diffLineType(line):
+    if line[:3] == "---":
+        return "from"
+    elif line[:3] == "+++":
+        return "to"
+    elif line[:2] == "@@":
+        return "section"
+    elif line[:1] == "-":
+        return "deletion"
+    elif line[:1] == "+":
+        return "insertion"
+    return "context"
+
+@app.template_filter()
+def diffParseSection(line):
+    m = re.search('^@@\s*-([0-9]+),[0-9]+\s+\+([0-9]+),[0-9]+\s*@@.*$', line)
+    return (int(m.group(1)), int(m.group(2)))
 

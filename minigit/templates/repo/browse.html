@@ -13,18 +13,17 @@
 </div>
 
 
-{% set branches = repo.git.branches %}
-{% set isbranch = repo.git.isBranch(ref) %}
+{% set isbranch = (rev in repo.git.branches) %}
 
 <div class="pull-right">
     <span class="input-prepend branch-select ">
         <span class="add-on">{% if isbranch %}branch{% else %}commit{% endif %}</span><select class="input-small" id="branch-select">
             {% for branch in repo.git.branches %}
-                <option value="{{ url_for('browse', slug = repo.slug, ref = branch, path = path) }}" {% if repo.git.refHash(branch) == repo.git.refHash(ref) %}selected="SELECTED"{% endif %}>{{ branch }}</option>
+                <option value="{{ url_for('browse', slug = repo.slug, rev = branch, path = path) }}" {% if branch == commit %}selected="SELECTED"{% endif %}>{{ branch.name }}</option>
             {% endfor %}
 
             {% if not isbranch %}
-                <option value="{{ url_for('browse', slug = repo.slug, ref = ref, path = path) }}" selected="SELECTED">{{ ref[:10] }}</option>
+                <option value="{{ url_for('browse', slug = repo.slug, rev = rev, path = path) }}" selected="SELECTED">{{ rev[:10] }}</option>
             {% endif %}
         </select>
     </span>
@@ -34,31 +33,31 @@
     </span>
 </div>
 
-{% set path = tree.path %}
 {% include "repo/path.html" %}
 
 {% if commit %}
+
+{% set author = (commit.author | gitToUser) %}
+
 <div class="commit-info well">
     <div class="author">
         <div class="avatar">
-            {% if commit.author %}
-                <img src="{{ commit.author.getAvatar(24) }}" width="24" height="24" />
+            {% if author %}
+                <img src="{{ author.getAvatar(24) }}" width="24" height="24" />
             {% else %}
                 <img src="{{ url_for('static', filename = 'gfx/unknown-avatar.png') }}" width="24" height="24" />
             {% endif %}
         </div>
 
-        {% if commit.author %}
-        <a href="{{ commit.author.url }}">{{ commit.author.username }}</a>
+        {% if author %}
+        <a href="{{ author.url }}">{{ author.username }}</a>
         {% else %}
-        {{ commit.author_raw or "Unknown" }}
+        {{ commit.author or "Unknown" }}
         {% endif %}
     </div>
 
-    <div class="message">
-        {{ commit.message | newlines }}
-        <span class="hash">{{ repo.git.refHash(commit.ref)[:10] }}</span>
-    </div>
+    <div class="message">{{ commit.message | trim }}</div>
+    <div class="hash">{{ commit.name_rev[:10] }}</div>
 </div>
 {% endif %}
 
@@ -76,22 +75,22 @@
     {% if path %}
     <tr class="folder">
         <td><i class="icon-16 icon-file-folder"></i></td>
-        <td><a href="{{ url_for('browse', slug = repo.slug, ref = ref, path = path | parentpath) }}">[..]</a></td>
+        <td><a href="{{ url_for('browse', slug = repo.slug, rev = rev, path = path | parentpath) }}">[..]</a></td>
         <td colspan="3"><i>- parent directory -</i></td>
     </tr>
     {% endif %}
 
-{% if tree and tree.children %}
-{% for file in tree.children %}
-    {% set last = repo.git.lastChangedCommit(ref, file.path) %}
-    <tr class="{% if file.is_tree %}folder{% else %}file{% endif %}">
-        <td><i class="icon-16 icon-file-{{ file.type or 'unknown' }}"></i></td>
-        <td><a href="{{ url_for('browse', slug = repo.slug, ref = ref, path = file.path) }}">{{ file.name }}</a></td>
-        <td>{% if file.is_blob %}{{ file.size | filesize }}{% else %}&mdash;{% endif %}</td>
-        <td>{{ last.author_time | humantime }}</td>
+{% if tree.trees or tree.blobs %}
+{% for file in tree.trees + tree.blobs %}
+    {% set last = repo.findCommitContaining(rev, file) %}
+    <tr class="{% if file.type == "TREE" %}folder{% else %}file{% endif %}">
+        <td><i class="icon-16 icon-file-{{ file | filetype }}"></i></td>
+        <td><a href="{{ url_for('browse', slug = repo.slug, rev = rev, path = file.path) }}">{{ file.name }}</a></td>
+        <td>{% if file.type == "BLOB" %}{{ file.size | filesize }}{% else %}&mdash;{% endif %}</td>
+        <td>{{ last.authored_date | gittime | humantime }}</td>
         <td>
             {{ last.message[:70] }}{% if last.message | length > 70 %}...{% endif %}
-            - <a href="{{ url_for('commits_details', slug = repo.slug, ref = last.ref) }}">{{ last.ref[:6] }}</a>
+            - <a href="{{ url_for('commits_details', slug = repo.slug, rev = last.hexsha) }}">{{ last.hexsha[:6] }}</a>
             -
             {% if last.author %}
             <a href="{{ last.author.url }}">{{ last.author.username }}</a>
@@ -108,7 +107,7 @@
 </table>
 
 
-{# SHOW README IF ANY #}
+{# SHOW README IF ANY }
 {% set file = tree.find("README*") %}
 {% if file %}
     <br />
@@ -116,6 +115,7 @@
 {% elif path == "" %}
     <p>You should add a readme file.</p>
 {% endif %}
+#}
 
 
 {% endblock %}

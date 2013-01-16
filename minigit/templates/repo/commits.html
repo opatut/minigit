@@ -16,13 +16,14 @@
 <ul class="commits">
     {% set day = None %}
     {% for commit in commits %}
-        {% if day != commit.author_time.date() %}
-            {% set day = commit.author_time.date() %}
+        {% if day != (commit.authored_date|gittime).date() %}
+            {% set day = (commit.authored_date|gittime).date() %}
             <li class="date">{{ day | nicedate }}</li>
         {% endif %}
     <li class="commit">
-        {% if commit.author %}
-            <img src="{{ commit.author.getAvatar(40) }}" width="40" height="40" />
+        {% set author = commit.author|gitToUser %}
+        {% if author %}
+            <img src="{{ author.getAvatar(40) }}" width="40" height="40" />
         {% else %}
             <img src="{{ url_for('static', filename = 'gfx/unknown-avatar.png') }}" width="40" height="40" />
         {% endif %}
@@ -30,17 +31,17 @@
             {{ commit.message[:70] }}{% if commit.message | length > 70 %}...{% endif %}
         </div>
         <div class="meta">
-            {% if commit.author %}
-            <a href="{{ commit.author.url }}">{{ commit.author.username }}</a>
+            {% if author %}
+            <a href="{{ author.url }}">{{ author.username }}</a>
             {% else %}
-            {{ commit.author_raw or "Unknown" }}
+            {{ commit.author or "Unknown" }}
             {% endif %}
-            authored {{ commit.author_time | humantime }}
-            <span class="hash">{{ commit.ref[:10] }}</span>
+            authored {{ commit.authored_date | gittime | humantime }}
+            <span class="hash">{{ commit.hexsha[:10] }}</span>
         </div>
         <div class="buttons">
-            <a href="{{ url_for('commits_details', slug = repo.slug, ref = commit.ref) }}" class="btn btn-mini">Details</a>
-            <a href="{{ url_for('browse', slug = repo.slug, ref = commit.ref, path = '') }}" class="btn btn-mini">Browse</a>
+            <a href="{{ url_for('commits_details', slug = repo.slug, rev = commit.hexsha) }}" class="btn btn-mini">Details</a>
+            <a href="{{ url_for('browse', slug = repo.slug, rev = commit.hexsha, path = '') }}" class="btn btn-mini">Browse</a>
         </div>
     </li>
     {% endfor %}

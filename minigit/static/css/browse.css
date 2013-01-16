@@ -4,7 +4,7 @@
 
 .git-url * {
     padding: 2px 6px !important;
-    font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+    font-family: "Droid Sans Mono", Monaco, Menlo, Consolas, "Courier New", monospace;
 }
 
 .branch-select * {
