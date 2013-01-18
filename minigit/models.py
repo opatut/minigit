@@ -130,14 +130,18 @@ class Repository(db.Model):
     is_public = db.Column(db.Boolean, default = True)
     implicit_access = db.Column(db.Enum("none", "find", "read", "write", "admin"), default = "none")
     implicit_guest_access = db.Column(db.Boolean, default = False)
+    created = db.Column(db.DateTime)
 
     permissions = db.relationship("Permission", backref = "repository", lazy = "dynamic")
 
     _git = None
+    _commits = None
+    _contributors = None
 
     def __init__(self, title, slug = ""):
         self.slug = get_slug(title) if not slug else slug
         self.title = title
+        self.created = datetime.utcnow()
 
     @property
     def path(self):
@@ -221,6 +225,26 @@ class Repository(db.Model):
             commits.append(commit)
         commits.sort(key = lambda o: o.committed_date, reverse = True)
         return commits[0]
+
+    @property
+    def commits(self):
+        if not self._commits:
+            self._commits = []
+            for commit in git.Commit.iter_items(self.git, "master"):
+                self._commits.append(commit)
+        return self._commits
+
+    @property
+    def contributors(self):
+        if not self._contributors:
+            from minigit.filters import gitToUser
+            self._contributors = []
+            for commit in self.commits:
+                user = gitToUser(commit.author)
+                if user and not user in self._contributors:
+                    self._contributors.append(user)
+        return self._contributors
+
 
     def getCommit(self, rev):
         node = self.git.rev_parse(rev)

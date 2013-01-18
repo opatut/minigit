@@ -11,18 +11,60 @@
     <a href="{{ url_for('create_repository') }}" class="btn"><i class="icon-plus"></i> Create a Repository</a>
 </p>
 
-{% for repo in list %}
-    <h4>
-        {% if repo.getUserPermission(current_user) == "find" %}
-            <span class="label label-important" style="vertical-align: 3px;">Restricted</span>
-            {{ repo.title }}
-        {% else %}
-            <a href="{{ url_for('browse', slug = repo.slug, rev = 'master', path = '') }}">{{ repo.title }}</a>
-        {% endif %}
+<ul class="repositories">
+{% for repo in list if repo.getUserPermission(current_user) != "none" %}
+    {% set p = repo.getUserPermission(current_user) %}
+    <li>
 
-        <small>/{{ repo.slug }}</small>
-    </h4>
+        <div class="content">
+            <div class="title" style="margin-bottom: 3px;">
+                <a href="{{ url_for('browse', slug = repo.slug, rev = 'master', path = '') }}">{{ repo.title }}</a>
+                <small><b>//</b> {{ repo.slug }}</small>
+
+                <div class="tags pull-right">
+                    {% if p == "find" %}
+                        <span class="label label-info" title="You cannot see the contents of this repository.">No access</span>
+                    {% elif p == "read" %}
+                        <span class="label label-success" title="You cannot see the contents of this repository.">Read-only</span>
+                    {% elif p == "write" %}
+                        <span class="label label-warning" title="You cannot see the contents of this repository.">Write access</span>
+                    {% elif p == "admin" %}
+                        <a    class="label label-important" title="You cannot see the contents of this repository." href="{{ url_for('permissions', slug = repo.slug) }}">Admin</a>
+                    {% else %}
+                    {{ p }}
+                    {% endif %}
+
+                    <a class="btn btn-mini"><i class="icon-file"></i> Files</a>
+                    <a class="btn btn-mini"><i class="icon-time"></i> History</a>
+                </div>
+            </div>
+
+            <div class="details">
+                <a href="#" class="commits label">{{ repo.commits | length }} commit{{ "s" if repo.commits|length != 1 else "" }}</a>
+                <a href="#" class="contributors label">{{ repo.contributors | length }} contributor{{ "s" if repo.contributors|length != 1 else "" }}</a>
+
+                {% if repo.commits %}
+                    {% set last = repo.git.heads[0].commit %}
+                    <span class="last-activity">Last activity {{ last.authored_date | gittime | humantime }} by
+                        {% set u = last.author | gitToUser %}
+                        {% if u %}
+                            <a href="{{ u.url }}">{{ u.username }}</a>
+                        {% else %}
+                            {{ last.author.name }}
+                        {% endif %}
+                    </span>
+                {% endif %}
+
+                <div class="pull-right">
+                    <span class="git-url">git clone {{ repo.gitUrl }}</span>
+                    <!--<input type="text" class="git-url" value="git clone {{ repo.gitUrl }}"/>-->
+                </div>
+            </div>
+        </div>
+
+    </li>
 {% endfor %}
+</ul>
 
 {% endblock %}
 

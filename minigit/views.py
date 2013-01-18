@@ -109,7 +109,10 @@ def create_repository():
 
 @app.route("/list/repositories/")
 def repositories():
-    return render_template("repositories.html", list = Repository.query.all())
+    repos = Repository.query.order_by("LOWER(title)").all()
+    from minigit.filters import gittime
+    repos.sort(key = lambda repo: gittime(repo.git.heads[0].commit.authored_date) if repo.commits else repo.created, reverse = True)
+    return render_template("repositories.html", list = repos)
 
 @app.route("/list/users/")
 def users():
