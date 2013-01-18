@@ -25,11 +25,11 @@
                     {% if p == "find" %}
                         <span class="label label-info" title="You cannot see the contents of this repository.">No access</span>
                     {% elif p == "read" %}
-                        <span class="label label-success" title="You cannot see the contents of this repository.">Read-only</span>
+                        <span class="label label-success" title="You cannot write into this repository.">Read-only</span>
                     {% elif p == "write" %}
-                        <span class="label label-warning" title="You cannot see the contents of this repository.">Write access</span>
+                        <span class="label label-warning" title="You cannot read and write in repository.">Write access</span>
                     {% elif p == "admin" %}
-                        <a    class="label label-important" title="You cannot see the contents of this repository." href="{{ url_for('permissions', slug = repo.slug) }}">Admin</a>
+                        <a class="label label-important" title="You are awesome!" href="{{ url_for('permissions', slug = repo.slug) }}">Admin</a>
                     {% else %}
                     {{ p }}
                     {% endif %}
@@ -56,7 +56,7 @@
                 {% endif %}
 
                 <div class="pull-right">
-                    <span class="git-url">git clone {{ repo.gitUrl }}</span>
+                    <span class="git-url" data-clipboard-text="{{ repo.gitUrl }}">git clone {{ repo.gitUrl }}</span>
                     <!--<input type="text" class="git-url" value="git clone {{ repo.gitUrl }}"/>-->
                 </div>
             </div>
