@@ -34,13 +34,13 @@
                     {{ p }}
                     {% endif %}
 
-                    <a class="btn btn-mini"><i class="icon-file"></i> Files</a>
-                    <a class="btn btn-mini"><i class="icon-time"></i> History</a>
+                    <a class="btn btn-mini" href="{{ url_for('browse', slug = repo.slug, rev = 'master', path = '') }}"><i class="icon-file"></i> Files</a>
+                    <a class="btn btn-mini" href="{{ url_for('commits', slug = repo.slug) }}"><i class="icon-time"></i> History</a>
                 </div>
             </div>
 
             <div class="details">
-                <a href="#" class="commits label">{{ repo.commits | length }} commit{{ "s" if repo.commits|length != 1 else "" }}</a>
+                <a href="{{ url_for('commits', slug = repo.slug) }}" class="commits label">{{ repo.commits | length }} commit{{ "s" if repo.commits|length != 1 else "" }}</a>
                 <a href="#" class="contributors label">{{ repo.contributors | length }} contributor{{ "s" if repo.contributors|length != 1 else "" }}</a>
 
                 {% if repo.commits %}
