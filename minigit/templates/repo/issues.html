@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Issues &middot; /{{ repo.slug }} &middot; {{ repo.title }}{% endblock %}
+
+{% block head %}
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/issues.css') }}" />
+    <!--<script src="{{ url_for('static', filename='js/commits.js') }}"></script>-->
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3>Issues <small>{{ repo.title }}</small></h3>
+</div>
+
+{% if issues %}
+<ul class="issues">
+    {% for issue in issues %}
+    {% set replies = issue.replies.all() %}
+    {% set first = replies[0] %}
+    {% set last = replies[-1] %}
+
+    <li class="issue {% if issue.is_open %}open{% else %}closed{% endif %}">
+        <div class="avatar">
+            <a href="{{ first.author.url }}">
+                <img src="{{ first.author.getAvatar(30) }}" width="30" height="30" />
+            </a>
+        </div>
+
+        <div class="title">
+            <span class="number">#{{ issue.number }}</span>
+            <!--<i class="icon-{% if not issue.is_open %}ok{% else %}remove{% endif %}"></i>-->
+            <span class="text"><a href="{{ issue.url }}" class="inherit">{{ issue.title }}</a></span>
+        </div>
+        <div class="meta">
+            <a href="{{ first.author.url }}">{{ first.author.username }}</a>
+            created {{ first.created | humantime }}
+
+            &ndash;
+            {% set r = replies | length - 1 %}
+            {{ r or "no" }} {% if r == 1 %}reply{% else %}replies{% endif %}
+
+            {% if r >= 1 %}, last activity {{ last.created | humantime }}{% endif %}
+        </div>
+        <div class="buttons">
+            {% for tag in issue.tags %}
+                <span class="label" style="background-color: {{ tag.color }};">{{ tag.tag }}</span>
+            {% endfor %}
+
+            {% if issue.tags | length == 0 %}
+                <span class="info">(no tags)</span>
+            {% endif %}
+
+            &nbsp;
+            <a href="{{ issue.url }}" class="btn btn-mini">Details</a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+    <p>
+        There are no commits yet.
+    </p>
+{% endif %}
+
+{% endblock %}

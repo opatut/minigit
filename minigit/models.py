@@ -10,6 +10,11 @@ from minigit.util import *
 from flask import url_for, Markup
 from minigit.login import *
 
+issue_tags = db.Table('issue_tags', db.Model.metadata,
+    db.Column('issue_id', db.Integer, db.ForeignKey('issue.id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('issue_tag.id'))
+)
+
 class Email(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     address = db.Column(db.String(80), unique=True)
@@ -50,6 +55,10 @@ class User(db.Model):
 
     is_admin = db.Column(db.Boolean, default = False)
     permissions = db.relationship("Permission", backref = "user", lazy = "dynamic")
+
+    assigned_issues = db.relationship("Issue", backref = "assignee", lazy = "dynamic")
+    issue_replies = db.relationship("IssueReply", backref = "author", lazy = "dynamic")
+
 
     def __init__(self, username, password):
         self.username = username
@@ -111,6 +120,70 @@ class User(db.Model):
 
         return "http://www.gravatar.com/avatar/{0}?s={1}&d=identicon".format(md5(email.address.lower()).hexdigest(), size)
 
+class Issue(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    number = db.Column(db.Integer)
+    repository_id = db.Column(db.Integer, db.ForeignKey("repository.id"))
+    assignee_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    replies = db.relationship("IssueReply", backref = "issue", lazy = "dynamic")
+    title = db.Column(db.String(128))
+    is_open = db.Column(db.Boolean, default = True)
+
+    tags =  db.relationship("IssueTag", secondary = issue_tags, backref = "issues")
+
+    def __init__(self, repository, title):
+        self.title = title
+        self.repository = repository
+        self.number = repository.next_issue_number
+        repository.next_issue_number += 1
+        db.session.commit()
+        self.is_open = True
+
+    def reply(self, text, author = None):
+        r = IssueReply(self, get_current_user() if not author else author, text)
+        r.new_is_open = self.is_open
+        db.session.add(r)
+        db.session.commit()
+
+    def close(self, author = None):
+        if not self.is_open: return
+        self.is_open = False
+        self.reply("", author)
+
+    def reopen(self, author = None):
+        if self.is_open: return
+        self.is_open = True
+        self.reply("", author)
+
+    @property
+    def url(self):
+        return url_for("issue", slug = self.repository.slug, number = self.number)
+
+class IssueReply(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    issue_id = db.Column(db.Integer, db.ForeignKey("issue.id"))
+    author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    text = db.Column(db.Text)
+    created = db.Column(db.DateTime)
+    new_is_open = db.Column(db.Boolean)
+
+    def __init__(self, issue, author, text):
+        self.issue = issue
+        self.author = author
+        self.text = text
+        self.created = datetime.datetime.utcnow()
+
+class IssueTag(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    tag = db.Column(db.String(64))
+    color = db.Column(db.String(10))
+    repository_id = db.Column(db.Integer, db.ForeignKey("repository.id"))
+
+    def __init__(self, tag, color, repository):
+        self.repository = repository
+        self.tag = tag
+        self.color = color
+
 class Permission(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
@@ -133,6 +206,9 @@ class Repository(db.Model):
     created = db.Column(db.DateTime)
 
     permissions = db.relationship("Permission", backref = "repository", lazy = "dynamic")
+    issues = db.relationship("Issue", backref = "repository", lazy = "dynamic")
+    tags = db.relationship("IssueTag", backref = "repository", lazy = "dynamic")
+    next_issue_number = db.Column(db.Integer, default = 1)
 
     _git = None
     _commits = None
@@ -141,7 +217,7 @@ class Repository(db.Model):
     def __init__(self, title, slug = ""):
         self.slug = get_slug(title) if not slug else slug
         self.title = title
-        self.created = datetime.utcnow()
+        self.created = datetime.datetime.utcnow()
 
     @property
     def path(self):
@@ -260,3 +336,7 @@ class Repository(db.Model):
             return node
 
         return None
+
+    @property
+    def openIssues(self):
+        return self.issues.filter_by(is_open = True).count()

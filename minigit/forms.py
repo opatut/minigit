@@ -147,3 +147,18 @@ class ChangeUsernameForm(Form):
         Not(UsernameExists(), message = "That username already exists."),
         Length(min = 3, max = 32, message="You have to enter a username of 3 to 32 characters length.")])
     password = PasswordField("Current Password", validators=[PasswordValidator()])
+
+class IssueReplyForm(Form):
+    text = TextAreaField("Reply", validators = [Required()])
+    submit = SubmitField("Reply")
+    submit_close = SubmitField("Reply & Close")
+
+    def is_submitted(self):
+        return Form.is_submitted(self) and "text" in request.form
+
+class IssueToggleOpenForm(Form):
+    reopen = SubmitField("Reopen")
+    close = SubmitField("Close")
+
+    def is_submitted(self):
+        return Form.is_submitted(self) and ("reopen" in request.form or "close" in request.form)

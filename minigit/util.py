@@ -3,6 +3,7 @@ from hashlib import sha512, md5
 from minigit import app
 from os.path import *
 from flask import abort
+from colorsys import rgb_to_hsv
 
 def verify_key(key):
     try:
@@ -111,3 +112,17 @@ def log_access(message):
 def shellquote(s):
     return "'" + s.replace("'", "'\\''") + "'"
 
+def rgbValue(rgb):
+    return rgb_to_hsv(rgb[0], rgb[1], rgb[2])[2]
+
+def colorRgbToHex(rgb):
+    return '#%02x%02x%02x' % rgb
+
+def colorHexToRgb(hex):
+    hex = hex.strip().strip("#")
+    if len(hex) == 3: hex = hex[0] * 2 + hex[1] * 2 + hex[2] * 2
+    if len(hex) != 6:
+        raise ValueError, "Input #%s is not in #RRGGBB format" % hex
+    r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:]
+    r, g, b = [int(n, 16) for n in (r, g, b)]
+    return (r, g, b)

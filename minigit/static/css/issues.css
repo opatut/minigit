@@ -1,0 +1,180 @@
+.issues {
+    margin: 0;
+    list-style: none;
+}
+
+.issues li.issue {
+    display: block;
+    background: #FBFBFB;
+    border: 1px solid #DDD;
+    padding: 4px;
+    position: relative;
+    margin-bottom: 6px;
+    height: 30px;
+}
+
+.issues li.issue.closed .title .text {
+    text-decoration: line-through;
+    color: #AAA;
+}
+
+.issues li.issue .meta,
+.issues li.issue .title {
+    margin: 0 100px 0 36px;
+}
+
+.issues li.issue .title .number {
+    color: #AAA;
+    font-weight: normal;
+    margin-right: 3px;
+}
+
+.issues li.issue .meta {
+    font-size: 0.9em;
+    color: #AAA;
+    line-height: 1.3em;
+}
+
+.issues li.issue .title {
+    font-weight: bold;
+    line-height: 1.4em;
+}
+
+.issues li.issue .buttons {
+    position: absolute;
+    right: 8px;
+    top: 4px;
+    height: 30px;
+    line-height: 30px;
+}
+
+.issues li.issue img {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+}
+
+.issues li.date {
+    font-size: 1.8em;
+    margin: 20px 0 10px 0;
+}
+
+
+.tags {
+    list-style: none;
+    margin: 0;
+}
+
+.tags li {
+    margin-bottom: 3px;
+}
+
+.tags li .label {
+    vertical-align: 1px;
+}
+
+.tags li.active {
+    font-weight: bold;
+}
+
+.tags li.inactive {
+    color: #AAA;
+}
+
+.tags li a {
+    display: block;
+    background: #F7F7F7;
+    border: 1px solid #CCC;
+    border-radius: 3px;
+    padding: 1px 4px 0 4px;
+}
+
+.tags li a:hover {
+    background: #FFF;
+}
+
+.tags input {
+    padding: 0 2px;
+}
+
+.tags li .buttons {
+    float: right;
+}
+
+.tags li .buttons .add,
+.tags li .buttons .remove {
+    display: none;
+}
+
+.tags li.active a:hover .buttons .remove {
+    display: inline;
+}
+
+.tags li.inactive a:hover .buttons .add {
+    display: inline;
+}
+
+
+.replies {
+    list-style: none;
+    margin: 0;
+}
+
+
+.replies li .image {
+    float: left;
+}
+
+.replies li .content {
+    border: 2px solid #CCC;
+    margin-left: 50px;
+    margin-bottom: 15px;
+    border-radius: 2px;
+}
+
+.replies li .content .text p:last-child {
+    margin-bottom: 0;
+}
+
+.replies li .content .meta {
+    border-bottom: 1px solid #CCC;
+    background: -webkit-gradient(linear, left top, left bottom, from(#EEE), to(#CCC));
+    background: #F6F6F6;
+    font-size: 0.9em;
+}
+
+.replies li.open-state .content .meta {
+    font-size: 1.1em;
+    font-weight: bold;
+    border: 0;
+}
+
+.replies li.reopened .content .meta {
+    color: #b94a48;
+}
+.replies li.closed .content .meta {
+    color: #468847;
+}
+
+
+
+
+.replies li .content .text {
+    background: #EEE;
+}
+
+.replies li .content .meta,
+.replies li .content .text {
+    padding: 4px 8px;
+}
+
+
+
+.replies li.comment {
+
+}
+
+.replies li.open-state {
+
+}
+

@@ -17,6 +17,7 @@
     {{ menuCategory("Repository &middot; " | safe + repo.title) }}
     {{ menuEntry("Source Browser", "file", "browse", {"slug" : repo.slug, "rev" : "master", "path" : ""}) }}
     {{ menuEntry("Commit history", "time", "commits", {"slug" : repo.slug} ) }}
+    {{ menuEntry("Issues (%i)" % repo.openIssues, "check", "issues", {"slug" : repo.slug} ) }}
 
     {% if repo.userHasPermission(current_user, "admin") %}
     {{ menuEntry("Permissions", "user", "permissions", {"slug" : repo.slug} ) }}

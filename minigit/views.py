@@ -242,6 +242,38 @@ def file_content(slug, rev, path):
     response.mimetype = blob.mime_type
     return response
 
+@app.route("/repo/<slug>/issues/")
+def issues(slug):
+    repo = get_repo(slug)
+    repo.requirePermission("read")
+    issues = repo.issues.all()
+    issues.sort(key = lambda a: a.replies.first().created)
+    return render_template("repo/issues.html", repo = repo, issues = issues)
+
+@app.route("/repo/<slug>/issues/<int:number>/", methods = ["POST", "GET"])
+def issue(slug, number):
+    repo = get_repo(slug)
+    repo.requirePermission("read")
+    issue = repo.issues.filter_by(number = number).first_or_404()
+
+    reply_form = IssueReplyForm()
+    toggle_open_form = IssueToggleOpenForm()
+
+    if reply_form.validate_on_submit():
+        issue.reply(reply_form.text.data)
+        if reply_form.submit_close.data:
+            issue.close()
+        db.session.commit()
+
+    if toggle_open_form.validate_on_submit():
+        if toggle_open_form.reopen.data:
+            issue.reopen()
+        elif toggle_open_form.close.data:
+            issue.close()
+        db.session.commit()
+
+    return render_template("repo/issue.html", repo = repo, issue = issue, reply_form = reply_form, toggle_open_form = toggle_open_form)
+
 @app.route("/profile", methods = ["POST", "GET"])
 @app.route("/profile/<username>")
 def profile(username = ""):

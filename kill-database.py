@@ -7,6 +7,7 @@ from minigit.util import generate_authorized_keys
 db.drop_all()
 db.create_all()
 
+### USERS
 admin = User("admin", "test01")
 admin.is_admin = True
 admin.addEmail("test@example.com", True, True)
@@ -29,6 +30,7 @@ nobody.addEmail("nobody@example.com", True, True)
 # nobody.addPublicKey("ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDRUFLcksSX57IC7Z1yGWWYignX7tnn0c2EffImrZbUoZTtxpQPvsnkw191/NAb9ol8K0ndjLYtaaRIxYsXwAcLaT+/Cu0K+Jd7E+CKa1KzJJNhYsnEJIYH+JMFbBcq3IP+r5XI5E35SA0mjWlPHmqFDssotSPd9f0Q66OIy7MNscrJaNNUSauVkNVr/SlMpEHB0mpY0fZJZz0Qlqb2PV7OWvh332bMdM70+dl9CyxNRNruApq95gI+IUYac7gMqgtoFIsxojBvaETuMqqhcfwuc9wx++ezxqq2UgMV9KDGlv9rfrjPr+P3/ZhUD0afo75BalCLyEAVeYugCv8hRg+lD1IgT7oJy1WVPIKAHgM8KjqDKWUDBJRdnBokMQ/y8PEaGRBzpWk5YIWefDf901xosgi4L+DMr2fxb7wRJOLb88Y+MmBuaN5ODa6FGMo7Ql7xRwgbVleS+J46mr2HG7ITTSLvn5on7K3cAfvUQsFfcesYLoHGbL6Lf7VY7HxAEMxrj9QJyp3LWrHw7kTdxGsT34ZQCcbI4NM0h++LVer5yjlMgOM8yf5ehc6hMIj2s417HNBKWMeojyZG3ThvtmQmhvxVyrWdFhntNB0tB0RxMiINQEBHLV6S/OHg9TKEhcPn1csG8H2QjXf1k88cGjuFu6xzCam+0Hfk/2DDZmkRVQ== paul@newton")
 db.session.add(nobody)
 
+### REPOSITORIES
 test = Repository("Test Repository", "test")
 db.session.add(test)
 test.init()
@@ -36,14 +38,42 @@ test.init()
 minigit = Repository("Minigit", "minigit")
 db.session.add(minigit)
 minigit.init()
-
 db.session.commit()
 
+### PERMISSIONS
 test.setUserPermission(opatut, "admin")
 test.setUserPermission(zetaron, "read")
 minigit.setUserPermission(opatut, "admin")
-
 db.session.commit()
 
-# fix everything
+### ISSUES
+i1 = Issue(test, "Something is wrong here")
+db.session.add(i1)
+i2 = Issue(test, "Dude you broke it")
+db.session.add(i2)
+db.session.commit()
+
+i1.reply("Something is really, really, horribly broken, as it seems. Maybe. *Fun fun fun*!", opatut)
+i2.reply("Somebody is retard.", zetaron)
+i2.reply("That must be you.", opatut)
+i2.close(opatut)
+
+## Issue Tags
+
+tagBug = IssueTag("Bug", "#F00", test)
+tagFeature = IssueTag("Feature", "#2C3", test)
+tagDocumentation = IssueTag("Docs", "#AAA", test)
+tagCleanup = IssueTag("Cleanup", "#A0A", test)
+db.session.add(tagBug)
+db.session.add(tagFeature)
+db.session.add(tagDocumentation)
+db.session.add(tagCleanup)
+db.session.commit()
+i1.tags.append(tagBug)
+i1.tags.append(tagCleanup)
+db.session.commit()
+
+
+
+### FINISH
 generate_authorized_keys()

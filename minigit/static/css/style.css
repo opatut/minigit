@@ -45,6 +45,11 @@ html, body.default {
 }
 */
 
+a.inherit {
+    color: inherit;
+    text-decoration: inherit;
+}
+
 .browse-path {
     font-size: 16pt;
 }
@@ -303,4 +308,9 @@ pre {
 .repositories li .labels {
     width: 100px;
     text-align: right;
+}
+
+.info {
+    font-size: 0.9em;
+    color: #888;
 }
