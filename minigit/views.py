@@ -250,6 +250,25 @@ def issues(slug):
     issues.sort(key = lambda a: a.replies.first().created)
     return render_template("repo/issues.html", repo = repo, issues = issues)
 
+@app.route("/repo/<slug>/issues/create/", methods = ["POST", "GET"])
+def issue_create(slug):
+    repo = get_repo(slug)
+    repo.requirePermission("read")
+
+    create_form = IssueCreateForm()
+
+    if create_form.validate_on_submit():
+        issue = Issue(repo, create_form.title.data)
+        issue.reply(create_form.text.data)
+
+        db.session.add(issue)
+        db.session.commit()
+
+        flash("The issue '%s' has been created successfully." % (issue), category = "success")
+        return redirect(url_for("issue", slug = slug, number = issue.number))
+    else:
+        return render_template("repo/issue_create.html", repo = repo, create_form = create_form)
+
 @app.route("/repo/<slug>/issues/<int:number>/", methods = ["POST", "GET"])
 def issue(slug, number):
     repo = get_repo(slug)

@@ -9,7 +9,11 @@
 
 {% block content %}
 <div class="page-header">
-    <h3>Issues <small>{{ repo.title }}</small></h3>
+    <h3>Issues <small>{{ repo.title }}</small>
+        <div class="pull-right">
+            <a href="{{ url_for('issue_create', slug = repo.slug) }}" class="btn"><i class="icon-plus"></i> Create Issue</a>
+        </div>
+    </h3>
 </div>
 
 {% if issues %}

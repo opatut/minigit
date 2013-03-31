@@ -162,3 +162,9 @@ class IssueToggleOpenForm(Form):
 
     def is_submitted(self):
         return Form.is_submitted(self) and ("reopen" in request.form or "close" in request.form)
+
+class IssueCreateForm(Form):
+    title = TextField("Title", validators = [Required()])
+    text = TextAreaField("Description", validators = [Optional()])
+
+    submit = SubmitField("Create")

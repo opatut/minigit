@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import form_errors %}
+
+{% block title %}Create Issue &middot; /{{ repo.slug }} &middot; {{ repo.title }}{% endblock %}
+
+{% block head %}
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/issues.css') }}" />
+    <!--<script src="{{ url_for('static', filename='js/commits.js') }}"></script>-->
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h3>Create Issue <small>{{ repo.title }}</small></h3>
+</div>
+
+<div class="row-fluid">
+    <form method="post" class="form well form-horizontal">
+        {{ create_form.hidden_tag() }}
+        {{ form_errors(create_form) }}
+
+        <p>
+            {{ create_form.title(class="span12", placeholder="A short and descriptive title") }}
+        </p>
+
+        <p>
+            {{ create_form.text(class="span12", rows="5", placeholder="Your extended description here...") }}
+        </p>
+
+        <div class="control-group">
+            <p style="text-align: right;">
+                <span class="info">Your description is being parsed with Markdown.</span> &nbsp;&nbsp;
+                {{ create_form.submit(class="btn btn-primary") }}
+            </p>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
