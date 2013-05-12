@@ -102,7 +102,7 @@ def die(message):
 
 def log_access(message):
     with open("access.log", "a") as f:
-        m = str(datetime.datetime.utcnow())
+        m = str(datetime.utcnow())
         m += " - "
         m += os.getenv("SSH_CLIENT").split()[0]
         m += " - "
