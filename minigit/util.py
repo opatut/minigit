@@ -1,8 +1,9 @@
-import re, os, sys, datetime, subprocess, iso8601, pytz, base64, struct
+import re, os, sys, subprocess, iso8601, pytz, base64, struct
 from hashlib import sha512, md5
 from minigit import app
 from os.path import *
 from flask import abort
+from datetime import datetime
 
 def verify_key(key):
     try:
@@ -71,7 +72,7 @@ def parse_date(s):
     # Parse timezone offset
     stamp, tz = s.split()
     timezone = iso8601.iso8601.parse_timezone(tz[:3] + ':' + tz[3:])
-    return datetime.datetime.fromtimestamp(int(stamp), timezone).astimezone(pytz.utc).replace(tzinfo = None)
+    return datetime.fromtimestamp(int(stamp), timezone).astimezone(pytz.utc).replace(tzinfo = None)
 
 def hash_password(s):
     return sha512((s + app.config['SECRET_KEY']).encode('utf-8')).hexdigest()
