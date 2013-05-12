@@ -5,6 +5,7 @@
 
 {% block head %}
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/issues.css') }}" />
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jscolor.js') }}"></script>
     <!--<script src="{{ url_for('static', filename='js/commits.js') }}"></script>-->
 {% endblock %}
 
@@ -111,8 +112,15 @@
                 </li>
             {% endfor %}
             <li class="new" style="position: relative;">
-                <input type="color" name="color" style="width: 16px;" value="#FFFF00">
-                <input type="text" name="tag" style="position: absolute; left: 26px; right: 0px; width: inherit;">
+                <form method="post" action="{{ issue.url }}">
+                    {{ tag_add_form.hidden_tag() }}
+                    {{ form_errors(tag_add_form) }}
+
+                    <input class="color {valueElement:'color'}" style="width: 16px;" type="text">
+                    {{ tag_add_form.color(id="color", type="hidden") }}
+                    {{ tag_add_form.tag(style="position: absolute; left: 26px; right: 0px; width: inherit;")}}
+                    <input type="submit">
+                </form>
             </li>
         </ul>
     </div>

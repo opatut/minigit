@@ -340,3 +340,10 @@ class Repository(db.Model):
     @property
     def openIssues(self):
         return self.issues.filter_by(is_open = True).count()
+
+    @property
+    def taglist(self):
+        l = []
+        for tag in self.tags:
+            l.append(tag.tag)
+        return l

@@ -277,6 +277,7 @@ def issue(slug, number):
 
     reply_form = IssueReplyForm()
     toggle_open_form = IssueToggleOpenForm()
+    tag_add_form = IssueTagAddForm()
 
     if reply_form.validate_on_submit():
         issue.reply(reply_form.text.data)
@@ -291,7 +292,21 @@ def issue(slug, number):
             issue.close()
         db.session.commit()
 
-    return render_template("repo/issue.html", repo = repo, issue = issue, reply_form = reply_form, toggle_open_form = toggle_open_form)
+    if tag_add_form.validate_on_submit():
+        t = tag_add_form.tag.data.strip()
+        if t in repo.taglist:
+            tag = repo.tags.filter_by(tag = t).first()
+            tag.color = "#" + tag_add_form.color.data
+        else:
+            tag = IssueTag(t, "#" + tag_add_form.color.data, repo)
+            db.session.add(tag)
+
+        issue.tags.append(tag)
+        db.session.commit()
+
+    return render_template("repo/issue.html", repo = repo, issue = issue,
+        reply_form = reply_form, toggle_open_form = toggle_open_form,
+        tag_add_form = tag_add_form)
 
 @app.route("/profile", methods = ["POST", "GET"])
 @app.route("/profile/<username>")

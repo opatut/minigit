@@ -166,5 +166,11 @@ class IssueToggleOpenForm(Form):
 class IssueCreateForm(Form):
     title = TextField("Title", validators = [Required()])
     text = TextAreaField("Description", validators = [Optional()])
-
     submit = SubmitField("Create")
+
+class IssueTagAddForm(Form):
+    color = TextField("Color", validators = []) #Regexp("[0-9a-fA-F]{6}", message = "Invalid color.")])
+    tag = TextField("Tag", validators = [Required()])
+
+    def is_submitted(self):
+        return Form.is_submitted(self) and ("color" in request.form and "tag" in request.form)
